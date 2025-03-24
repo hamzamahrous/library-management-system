@@ -1,0 +1,80 @@
+<button
+  *ngIf="!isSidebarAnimating && !isSidebarOpen"
+  title="Toggle sidebar"
+  class="lg:hidden fixed top-[24px] left-4 z-50 bg-mainBlue text-white py-[10px] px-[14px] rounded-lg"
+  (click)="toggleSidebar()"
+>
+  <i class="fa-solid fa-bars text-sm"></i>
+</button>
+
+<div
+  *ngIf="isSidebarOpen"
+  class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+  (click)="toggleSidebar()"
+></div>
+
+<aside
+  [class.translate-x-0]="isSidebarOpen"
+  [class.-translate-x-full]="!isSidebarOpen"
+  class="fixed lg:flex w-64 lg:w-52 h-screen py-6 px-8 font-inter flex-col items-start shadow-lg overflow-y-auto z-40 bg-white transform transition-transform duration-300 ease-linear"
+  (transitionend)="onSidebarTransitionEnd()"
+>
+  <div
+    class="title w-full flex justify-center items-center mb-16 md:mb-10 mt-3 gap-3 text-mainBlue"
+  >
+    <i class="fa-solid fa-book text-3xl lg:text-2xl"></i>
+    <h1 class="text-4xl lg:text-3xl font-bold">ReadHub</h1>
+  </div>
+
+  <div class="flex flex-col justify-center items-start flex-grow gap-4">
+    <app-navig-link
+      [icon]="'fa-solid fa-house'"
+      [title]="'Discover'"
+      [routeLink]="'home'"
+    ></app-navig-link>
+
+    <app-navig-link
+      [icon]="'fa-solid fa-layer-group'"
+      [title]="'Category'"
+      [routeLink]="'category'"
+    ></app-navig-link>
+
+    <app-navig-link
+      [icon]="'fa-solid fa-book-open'"
+      [title]="'My Library'"
+      [routeLink]="'library'"
+    ></app-navig-link>
+
+    <app-navig-link
+      [icon]="'fa-solid fa-download'"
+      [title]="'Download'"
+      [routeLink]="'download'"
+    ></app-navig-link>
+
+    <app-navig-link
+      [icon]="'fa-solid fa-heart'"
+      [title]="'Favourite'"
+      [routeLink]="'favourite'"
+    ></app-navig-link>
+
+    <span class="w-full h-[1px] bg-gray-200 my-4"></span>
+
+    <app-navig-link
+      [icon]="'fa-solid fa-cog'"
+      [title]="'Settings'"
+      [routeLink]="'settings'"
+    ></app-navig-link>
+
+    <app-navig-link
+      [icon]="'fa-solid fa-life-ring'"
+      [title]="'Support'"
+      [routeLink]="'support'"
+    ></app-navig-link>
+
+    <app-navig-link
+      [icon]="'fa-solid fa-sign-out-alt'"
+      [title]="'Logout'"
+      [routeLink]="'logout'"
+    ></app-navig-link>
+  </div>
+</aside>

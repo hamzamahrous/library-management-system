@@ -1,0 +1,71 @@
+<section class="flex h-screen w-full font-inter justify-between">
+  <div
+    class="p-8 md:p-24 flex flex-col justify-center items-center basis-full md:basis-1/2 md:items-start"
+  >
+    <lib-logo class="w-full"></lib-logo>
+    <h2 class="text-2xl md:text-3xl font-bold">Sign in to your account</h2>
+    <span class="my-4 text-sm"
+      ><span class="text-gray-700">Not a member? </span>
+      <a [routerLink]="'/sign-up'" class="text-mainBlue">Register</a>
+    </span>
+
+    <form
+      action=""
+      class="w-full flex flex-col gap-6 mt-8"
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+    >
+      <div class="input flex flex-col">
+        <label for="email" class="text-sm mb-2">Email address</label>
+        <input
+          type="email"
+          name=""
+          id="email"
+          placeholder="example@gmail.com"
+          class="border border-gray-300 rounded-md w-full text-sm px-3 py-[9px] focus:outline-none"
+          formControlName="email"
+        />
+      </div>
+      @if(emailIsInvalid){
+      <p class="text-sm text-red-500 text-center">
+        Please enter a valid email.
+      </p>
+      }
+
+      <div class="input flex flex-col">
+        <label for="pass" class="text-sm mb-2">Password</label>
+        <input
+          type="password"
+          name=""
+          id="pass"
+          placeholder="password"
+          class="border border-gray-300 rounded-md w-full text-sm px-3 py-[9px] focus:outline-none"
+          formControlName="password"
+        />
+      </div>
+      @if (passIsInvalid) {
+      <p class="text-sm text-red-500 text-center">
+        Please enter a valid password (at least 8 characters long).
+      </p>
+      }
+
+      <button
+        class="w-full text-white py-2 bg-mainBlue rounded-md mt-8 disabled:opacity-50"
+        type="submit"
+        [disabled]="form.invalid"
+      >
+        Sign in
+      </button>
+    </form>
+  </div>
+  <div class="hidden md:block image basis-1/2 relative">
+    <span
+      class="block w-full h-full bg-black opacity-50 absolute left-0 top-0"
+    ></span>
+    <img
+      src="pexels-wendelmoretti-1850022.jpg"
+      alt=""
+      class="w-full h-full hidden md:block"
+    />
+  </div>
+</section>
