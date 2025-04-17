@@ -1,0 +1,58 @@
+<div class="p-3 mt-12 flex justify-between items-center">
+  <div class="lg:max-w-80">
+    <h1
+      class="text-5xl md:text-6xl lg:text-7xl font-bold font-inter leading-tight"
+    >
+      Books & Literature
+    </h1>
+
+    <span class="block text-gray-500 mt-6 font-inter">
+      Discover the best high-quality books from our curated collection.
+    </span>
+
+    <div class="mt-6 flex gap-3">
+      <button
+        title="Start Shopping"
+        class="px-4 py-2 bg-slate-950 rounded-md text-white"
+      >
+        Start Shopping
+      </button>
+      <button
+        title="Explore More"
+        class="flex justify-center items-center gap-2"
+      >
+        Explore More
+        <svg
+          stroke="currentColor"
+          fill="currentColor"
+          stroke-width="0"
+          viewBox="0 0 16 16"
+          class="text-lg"
+          height="1em"
+          width="1em"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"
+          ></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="hidden lg:block">
+    <img src="home-1.png" alt="" class="max-w-xl" />
+  </div>
+</div>
+
+<div
+  class="my-16 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4 xl:gap-x-8"
+>
+  <div class="flex justify-center items-center text-3xl font-bold md:text-5xl">
+    Trending Books
+  </div>
+
+  @for (bookData of trendingBooks; track bookData.book_id) {
+  <app-book [book]="bookData"></app-book>
+  }
+</div>

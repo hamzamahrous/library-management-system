@@ -1,0 +1,28 @@
+<header class="py-3 flex flex-wrap justify-between items-center">
+  <div class="flex-shrink-0">
+    <span class="text-slate-950 text-2xl font-bold font-inter">ReadHub</span>
+  </div>
+
+  <div class="hidden relative sm:block sm:w-auto mt-2 sm:mt-0">
+    <lib-search-bar (search)="onSearch($event)"></lib-search-bar>
+  </div>
+
+  <div class="flex justify-between items-center gap-2">
+    <button
+      title="Whish List"
+      class="w-9 h-9 bg-gray-100 rounded-full flex justify-center items-center"
+    >
+      <i class="fa-solid fa-bookmark text-slate-800"></i>
+    </button>
+    <button
+      title="Bag"
+      class="w-9 h-9 bg-gray-100 rounded-full flex justify-center items-center"
+    >
+      <i class="fa-solid fa-bag-shopping text-slate-800"></i>
+    </button>
+  </div>
+
+  <div class="relative block sm:hidden mt-3 w-full">
+    <lib-search-bar (search)="onSearch($event)"></lib-search-bar>
+  </div>
+</header>
