@@ -7,8 +7,12 @@ urlpatterns = [
     path('login/', user_login, name='login'),
     path('logout/', user_logout, name='logout'),
     path('userlist/', user_list, name='user-list'),
-    path('books/', book_list, name='book_list'),
-    path('books/<int:pk>', book_detail, name='book_list'),
+
+    # path('books/', book_list, name='book_list'),
+    # path('books/<int:pk>', book_detail, name='book_list'),
+    path('books/', BookList.as_view(), name='book-list'),
+    path('books/<int:pk>/', BookDetail.as_view(), name='book-detail'),
+
     path('category/', category_list, name='category_list'),
     path('category/<int:pk>', category_detail, name='category_list'),
     path('wishlist/', wishlist_list, name='wishlist-list'),
