@@ -35,6 +35,7 @@ class UserListSerializer(serializers.ModelSerializer):
 
 class BookSerializer(serializers.ModelSerializer):
     publishing_date = serializers.DateField(format="%Y-%m-%d")  # Explicitly specify the format
+    # user = serializers.ReadOnlyField(source='publisher.username')  # Assuming 'owner' is a ForeignKey to User
 
     class Meta:
         model = Book
