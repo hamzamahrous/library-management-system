@@ -1,18 +1,15 @@
-from rest_framework import status
+from rest_framework import status, generics, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from .serializers import UserSerializer
-from .serializers import BookSerializer
-from .serializers import CategorySerializer
 from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated
+
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
-from .models import User
-from .models import Category
-from .models import Book,Wishlist,Review,Order,Payment
-from rest_framework.permissions import IsAuthenticated
-from .serializers import WishlistSerializer,ReviewSerializer,OrderSerializer,PaymentSerializer,TransactionSerializer,UserListSerializer
 
+from .serializers import *
+from .models import User, Book, Wishlist, Review, Order, Payment, Category, Transaction
+from .permissions import IsOwnerOrReadOnly
 
 @api_view(['POST'])
 def register_user(request):
@@ -208,43 +205,63 @@ def review_detail(request, pk):
 
 
 
+# @permission_classes([permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly])
+# @api_view(['GET', 'POST'])
+# def order_list(request):
+#     if request.method == 'GET':
+#         orders = Order.objects.all()
+#         serializer = OrderSerializer(orders, many=True)
+#         return Response(serializer.data)
 
-@api_view(['GET', 'POST'])
-def order_list(request):
-    if request.method == 'GET':
-        orders = Order.objects.all()
-        serializer = OrderSerializer(orders, many=True)
-        return Response(serializer.data)
+#     elif request.method == 'POST':
+#         serializer = OrderSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    elif request.method == 'POST':
-        serializer = OrderSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class OrderList(generics.ListCreateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    print(repr(TransactionSerializer()))
 
 
-@api_view(['GET', 'DELETE', 'PUT'])
-def order_detail(request, pk):
-    try:
-        order = Order.objects.get(pk=pk)
-    except Order.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
-    if request.method == 'GET':
-        serializer = OrderSerializer(order)
-        return Response(serializer.data)
 
-    elif request.method == 'DELETE':
-        order.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+# @permission_classes([permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly])
+# @api_view(['GET', 'DELETE', 'PUT'])
+# def order_detail(request, pk):
+#     try:
+#         order = Order.objects.get(pk=pk)
+#     except Order.DoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    elif request.method == 'PUT':
-        serializer = OrderSerializer(order, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     if request.method == 'GET':
+#         serializer = OrderSerializer(order)
+#         return Response(serializer.data)
+
+#     elif request.method == 'DELETE':
+#         order.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+
+#     elif request.method == 'PUT':
+#         serializer = OrderSerializer(order, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    # permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+    #                     IsOwnerOrReadOnly]
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 
@@ -291,42 +308,58 @@ def payment_detail(request, pk):
 
 
 
-from .models import Transaction
-from .serializers import TransactionSerializer
 
-@api_view(['GET', 'POST'])
-def transaction_list(request):
-    if request.method == 'GET':
-        transactions = Transaction.objects.all()
-        serializer = TransactionSerializer(transactions, many=True)
-        return Response(serializer.data)
+# @api_view(['GET', 'POST'])
+# def transaction_list(request):
+#     if request.method == 'GET':
+#         transactions = Transaction.objects.all()
+#         serializer = TransactionSerializer(transactions, many=True)
+#         return Response(serializer.data)
 
-    elif request.method == 'POST':
-        serializer = TransactionSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     elif request.method == 'POST':
+#         serializer = TransactionSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TransactionList(generics.ListCreateAPIView):
+    queryset = Transaction.objects.all()
+    serializer_class = TransactionSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+                        IsOwnerOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
-@api_view(['GET', 'DELETE', 'PUT'])
-def transaction_detail(request, pk):
-    try:
-        transaction = Transaction.objects.get(pk=pk)
-    except Transaction.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+# @api_view(['GET', 'DELETE', 'PUT'])
+# def transaction_detail(request, pk):
+#     try:
+#         transaction = Transaction.objects.get(pk=pk)
+#     except Transaction.DoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'GET':
-        serializer = TransactionSerializer(transaction)
-        return Response(serializer.data)
+#     if request.method == 'GET':
+#         serializer = TransactionSerializer(transaction)
+#         return Response(serializer.data)
 
-    elif request.method == 'DELETE':
-        transaction.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+#     elif request.method == 'DELETE':
+#         transaction.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    elif request.method == 'PUT':
-        serializer = TransactionSerializer(transaction, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     elif request.method == 'PUT':
+#         serializer = TransactionSerializer(transaction, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TransactionDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Transaction.objects.all()
+    serializer_class = TransactionSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

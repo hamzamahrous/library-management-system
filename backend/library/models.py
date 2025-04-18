@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.conf import settings
 
 
 class User(AbstractUser):
@@ -49,7 +50,8 @@ class Book (models.Model):
     num_of_sells = models.PositiveIntegerField(default=0)
     stock_quantity = models.PositiveIntegerField(default=0)
     evaluation = models.PositiveSmallIntegerField(null=True, blank=True)  # Allowing null for books without evaluation
-    about = models.TextField(blank=True)
+    brief_abstraction = models.TextField(blank=True)
+    long_abstraction = models.TextField(null=True)
     cover_image = models.URLField(max_length=500, blank=True)
 
     def __str__(self):
@@ -103,7 +105,7 @@ class Order(models.Model):
         ('cancelled', 'Cancelled'),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
+    user = models.ForeignKey(User, related_name='snippets', on_delete=models.CASCADE)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     order_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     shipping_address = models.TextField()
@@ -116,7 +118,7 @@ class Order(models.Model):
 
 class Transaction(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="transactions")
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="transactions")
+    user = models.ForeignKey(User,  on_delete=models.CASCADE, related_name="transactions")
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="transactions")
 
     def __str__(self):
