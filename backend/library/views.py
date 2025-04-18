@@ -97,36 +97,53 @@ def category_detail(request, pk):
 
 
 
-@api_view(['GET', 'POST'])
-def book_list(request):
-    if request.method == 'GET':
-        books = Book.objects.all()
-        serializer = BookSerializer(books, many=True)
-        return Response(serializer.data)
+# @api_view(['GET', 'POST'])
+# def book_list(request):
+#     if request.method == 'GET':
+#         books = Book.objects.all()
+#         serializer = BookSerializer(books, many=True)
+#         return Response(serializer.data)
     
-    elif request.method == 'POST':
-        serializer = BookSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     elif request.method == 'POST':
+#         serializer = BookSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class BookList(generics.ListCreateAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    # def perform_create(self, serializer):
+    #     serializer.save(user=self.request.user)
 
 
-@api_view(['GET', 'DELETE'])
-def book_detail(request, pk):
-    try:
-        book = Book.objects.get(pk=pk)
-    except Book.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+# @api_view(['GET', 'DELETE'])
+# def book_detail(request, pk):
+#     try:
+#         book = Book.objects.get(pk=pk)
+#     except Book.DoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
     
-    if request.method == 'GET':
-        serializer = BookSerializer(book)
-        return Response(serializer.data)
+#     if request.method == 'GET':
+#         serializer = BookSerializer(book)
+#         return Response(serializer.data)
     
-    elif request.method == 'DELETE':
-        book.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+#     elif request.method == 'DELETE':
+#         book.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
     
+
+class BookDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    # permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+    #                     IsOwnerOrReadOnly]
+    
+    # def perform_create(self, serializer):
+    #     serializer.save(user=self.request.user)
 
 
 
