@@ -1,18 +1,16 @@
 from rest_framework import serializers
-from .models import User
-from .models import Category
-from .models import Book
-from .models import Wishlist
-from .models import Order
-from .models import Review
-from .models import Payment
+from .models import *
 
 
 
 class UserSerializer(serializers.ModelSerializer):
+    transactions = serializers.HyperlinkedRelatedField(many=True, view_name='transaction-list', read_only=True)
+    orders = serializers.HyperlinkedRelatedField(many=True, view_name='order-list', read_only=True)
+
+    
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
+        fields = ['username', 'email', 'password', 'transactions', 'orders']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -26,9 +24,12 @@ class UserSerializer(serializers.ModelSerializer):
     
 
 class UserListSerializer(serializers.ModelSerializer):
+    transactions = serializers.HyperlinkedRelatedField(many=True, view_name='transaction-list', read_only=True)
+    orders = serializers.HyperlinkedRelatedField(many=True, view_name='order-list', read_only=True)
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email']  # Excluding password
+        fields = ['id', 'username', 'email', 'transactions', 'orders']  # Excluding password
 
 
 
@@ -67,6 +68,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')  # Assuming 'owner' is a ForeignKey to User
+
     class Meta:
         model = Order
         fields = '__all__'
@@ -75,9 +78,18 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class TransactionSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+    book_price = serializers.ReadOnlyField(source='book.price')
+    book_name = serializers.ReadOnlyField(source='book.book_name')
+
     class Meta:
-        model = Payment
-        fields = '__all__'
+        model = Transaction
+        fields = ['order', 'book', 'book_name', 'book_price', 'user']
+
+    def get_book_price(self, obj):
+        return obj.book.price if obj.book else None
+    
+
 
 
 
