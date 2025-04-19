@@ -13,6 +13,8 @@ urlpatterns = [
     path('books/', BookList.as_view(), name='book-list'),
     path('books/<int:pk>/', BookDetail.as_view(), name='book-detail'),
 
+    path('trending-books/', BookTrendingList.as_view(), name='trending-book-list'),
+
     path('category/', category_list, name='category_list'),
     path('category/<int:pk>', category_detail, name='category_list'),
     path('wishlist/', wishlist_list, name='wishlist-list'),

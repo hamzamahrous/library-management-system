@@ -120,6 +120,11 @@ class BookList(generics.ListCreateAPIView):
     #     serializer.save(user=self.request.user)
 
 
+class BookTrendingList(generics.ListAPIView):
+    queryset = Book.objects.all().order_by('-num_of_sells')[0:(Book.objects.count())//2]
+    serializer_class = BookSerializer
+
+
 # @api_view(['GET', 'DELETE'])
 # def book_detail(request, pk):
 #     try:
