@@ -97,32 +97,32 @@ def category_detail(request, pk):
 
 
 
-# @api_view(['GET', 'POST'])
-# def book_list(request):
-#     if request.method == 'GET':
-#         books = Book.objects.all()
-#         serializer = BookSerializer(books, many=True)
-#         return Response(serializer.data)
+@api_view(['GET', 'POST'])
+def book_list(request):
+    if request.method == 'GET':
+        books = Book.objects.all()
+        serializer = BookSerializer(books, many=True)
+        return Response(serializer.data)
     
-#     elif request.method == 'POST':
-#         serializer = BookSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'POST':
+        serializer = BookSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class BookList(generics.ListCreateAPIView):
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
+# class BookList(generics.ListCreateAPIView):
+#     queryset = Book.objects.all()
+#     serializer_class = BookSerializer
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     # def perform_create(self, serializer):
     #     serializer.save(user=self.request.user)
 
 
-class BookTrendingList(generics.ListAPIView):
-    queryset = Book.objects.all().order_by('-num_of_sells')[0:(Book.objects.count())//2]
-    serializer_class = BookSerializer
+# class BookTrendingList(generics.ListAPIView):
+#     queryset = Book.objects.all().order_by('-num_of_sells')[0:(Book.objects.count())//2]
+#     serializer_class = BookSerializer
 
 
 # @api_view(['GET', 'DELETE'])
