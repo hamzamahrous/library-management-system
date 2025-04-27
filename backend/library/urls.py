@@ -8,12 +8,12 @@ urlpatterns = [
     path('logout/', user_logout, name='logout'),
     path('userlist/', user_list, name='user-list'),
 
-    # path('books/', book_list, name='book_list'),
+    path('books/', book_list, name='book_list'),
     # path('books/<int:pk>', book_detail, name='book_list'),
-    path('books/', BookList.as_view(), name='book-list'),
+    # path('books/', BookList.as_view(), name='book-list'),
     path('books/<int:pk>/', BookDetail.as_view(), name='book-detail'),
 
-    path('trending-books/', BookTrendingList.as_view(), name='trending-book-list'),
+    # path('trending-books/', BookTrendingList.as_view(), name='trending-book-list'),
 
     path('category/', category_list, name='category_list'),
     path('category/<int:pk>', category_detail, name='category_list'),
