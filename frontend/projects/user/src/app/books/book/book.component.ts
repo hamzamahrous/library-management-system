@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Book } from '../book-type';
 import { Router } from '@angular/router';
 
@@ -16,6 +16,5 @@ export class BookComponent {
 
   loadBookDetails() {
     this.router.navigate(['/details', this.book.book_id]);
-    console.log(this.book.book_id);
   }
 }

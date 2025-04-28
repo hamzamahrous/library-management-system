@@ -1,11 +1,16 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { HeaderComponent } from './header/header.component';
-import { RouterModule } from '@angular/router';
+import { Component } from '@angular/core';
+import { HeroSectionComponent } from './hero-section/hero-section.component';
+import { TrendingBooksComponent } from './trending-books/trending-books.component';
+import { AboutSectionComponent } from './about-section/about-section.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [HeaderComponent, RouterModule],
+  imports: [
+    HeroSectionComponent,
+    TrendingBooksComponent,
+    AboutSectionComponent,
+  ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
