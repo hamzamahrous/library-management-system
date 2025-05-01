@@ -4,14 +4,14 @@ from .models import *
 
 
 class UserSerializer(serializers.ModelSerializer):
-    transactions = serializers.HyperlinkedRelatedField(many=True, view_name='transaction-list', read_only=True)
-    orders = serializers.HyperlinkedRelatedField(many=True, view_name='order-list', read_only=True)
+    # transactions = serializers.ReadOnlyField(view_name='transaction-list')
+    # orders = serializers.ReadOnlyField(view_name='order-list')
 
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'transactions', 'orders']
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ['username', 'email', 'password']
+        extra_kwargs = {'password': {'write_only': True,}}
 
     def create(self, validated_data):
         user = User(
@@ -24,8 +24,8 @@ class UserSerializer(serializers.ModelSerializer):
     
 
 class UserListSerializer(serializers.ModelSerializer):
-    transactions = serializers.HyperlinkedRelatedField(many=True, view_name='transaction-list', read_only=True)
-    orders = serializers.HyperlinkedRelatedField(many=True, view_name='order-list', read_only=True)
+    transactions = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    orders = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = User
@@ -36,6 +36,10 @@ class UserListSerializer(serializers.ModelSerializer):
 class BookSerializer(serializers.ModelSerializer):
     publishing_date = serializers.DateField(format="%Y-%m-%d")  # Explicitly specify the format
     # user = serializers.ReadOnlyField(source='publisher.username')  # Assuming 'owner' is a ForeignKey to User
+    url = serializers.HyperlinkedIdentityField(
+        view_name= 'book-detail',
+        lookup_field = 'pk'
+    )
 
     class Meta:
         model = Book
@@ -70,18 +74,21 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')  # Assuming 'owner' is a ForeignKey to User
+    transactions = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Order
         fields = '__all__'
+        extra_kwargs = {'total_price': {'read_only': True},
+        }
+        
 
 
 
 
 class TransactionSerializer(serializers.ModelSerializer):
-    user = serializers.ReadOnlyField(source='user.username')
-    book_price = serializers.ReadOnlyField(source='book.price')
-    book_name = serializers.ReadOnlyField(source='book.book_name')
+    book_price = serializers.ReadOnlyField(source='book.price', default='Not Specified')
+    book_name = serializers.ReadOnlyField(source='book.book_name', default = 'Not Specified')
 
     class Meta:
         model = Transaction
