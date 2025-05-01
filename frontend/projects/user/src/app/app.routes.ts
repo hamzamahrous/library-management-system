@@ -2,17 +2,17 @@ import { Routes } from '@angular/router';
 import { SignInComponent } from './auth/sign-in/sign-in.component';
 import { SignUpComponent } from './auth/sign-up/sign-up.component';
 import { HomeComponent } from './home/home.component';
-import { DefaultHomeComponent } from './home/default-home/default-home.component';
 import { BookDetailsComponent } from './books/book-details/book-details.component';
+import { MainLayoutComponent } from './main-layout/main-layout.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: HomeComponent,
+    component: MainLayoutComponent,
     children: [
       {
         path: '',
-        component: DefaultHomeComponent,
+        component: HomeComponent,
       },
       {
         path: 'details/:bookId',

@@ -16,7 +16,7 @@
             "outputPath": "dist/user",
             "index": "projects/user/src/index.html",
             "browser": "projects/user/src/main.ts",
-            "polyfills": ["zone.js"],
+            "polyfills": ["node_modules/process/browser.js", "zone.js"],
             "tsConfig": "projects/user/tsconfig.app.json",
             "assets": [
               {

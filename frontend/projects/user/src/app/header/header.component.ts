@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { SearchBarComponent } from '../../../../../shared-lib/src/lib/search-bar/search-bar.component';
-import { LogoComponent } from '../../../../../shared-lib/src/lib/logo/logo.component';
+import { SearchBarComponent } from 'projects/shared-lib/src/lib/search-bar/search-bar.component';
 
 @Component({
   selector: 'app-header',

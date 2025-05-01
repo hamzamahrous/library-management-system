@@ -1,19 +1,25 @@
-<div class="p-3 mt-12 flex justify-between items-center">
-  <div class="lg:max-w-80">
+<div
+  class="container lg:h-[calc(100vh-60px)] p-4 lg:p-2 flex justify-evenly items-center mt-6 lg:mt-0"
+>
+  <div class="lg:max-w-96">
     <h1
-      class="text-5xl md:text-6xl lg:text-7xl font-bold font-inter leading-tight"
+      class="text-5xl md:text-6xl lg:text-7xl font-bold font-inter leading-tight text-slate-900"
     >
       Books & Literature
     </h1>
 
-    <span class="block text-gray-500 mt-6 font-inter">
-      Discover the best high-quality books from our curated collection.
-    </span>
+    <div class="mb-6 lg:mb-12 mt-8 lg:mt-16">
+      <span class="block text-gray-500 font-inter leading-relaxed">
+        Discover the best high-quality books from our curated collection. Manage
+        your library easily and efficiently with ReadHub to explore, organize,
+        and enjoy thousands of books with ease.
+      </span>
+    </div>
 
     <div class="mt-6 flex gap-3">
       <button
         title="Start Shopping"
-        class="px-4 py-2 bg-slate-950 rounded-md text-white"
+        class="px-4 py-2 bg-slate-900 rounded-md text-white"
       >
         Start Shopping
       </button>
@@ -41,18 +47,6 @@
     </div>
   </div>
   <div class="hidden lg:block">
-    <img src="home-1.png" alt="" class="max-w-xl" />
+    <img src="home-blue.png" alt="" class="max-w-2xl" />
   </div>
-</div>
-
-<div
-  class="my-16 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4 xl:gap-x-8"
->
-  <div class="flex justify-center items-center text-3xl font-bold md:text-5xl">
-    Trending Books
-  </div>
-
-  @for (bookData of trendingBooks; track bookData.book_id) {
-  <app-book [book]="bookData"></app-book>
-  }
 </div>

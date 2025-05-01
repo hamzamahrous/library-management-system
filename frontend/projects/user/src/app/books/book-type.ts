@@ -10,7 +10,8 @@ export type Book = {
   num_of_sells: number;
   stock_quantity: number;
   evaluation: number; // Rating from 1 to 5
-  about: string;
+  brief_abstraction: string;
+  long_abstraction: string;
   cover_image: string; // URL to the cover image
   category_id: number;
 };

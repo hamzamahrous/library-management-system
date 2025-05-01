@@ -1,0 +1,11 @@
+<div
+  class="container cmb-12 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4 xl:gap-x-8"
+>
+  <div class="flex justify-center items-center text-3xl font-bold md:text-5xl">
+    Trending Books
+  </div>
+
+  @for (bookData of trendingBooks; track bookData.book_id) {
+  <app-book [book]="bookData"></app-book>
+  }
+</div>
