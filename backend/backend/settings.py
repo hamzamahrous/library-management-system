@@ -37,8 +37,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # ...
     'rest_framework',
-    'rest_framework.authtoken',
+    'rest_framework.authtoken',  # For token authentication.
     'library',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -123,10 +124,18 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = 'library.User'
 
 REST_FRAMEWORK = {
-    # 'DEFAULT_AUTHENTICATION_CLASSES': [
+    # 'DEFAULT_AUTHENTICATION_CLASSES': [ 
     #     'rest_framework.authentication.TokenAuthentication',
     #     'rest_framework.authentication.BasicAuthentication',
     #     'rest_framework.authentication.SessionAuthentication',
     # ],
+    # 'DEFAULT_PERMISSION_CLASSES':[
+    #     'rest_framework.authentication.IsAuthenticatedOrReadOnly',
+    # ]
     # Other settings...
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    # 'PAGE_SIZE': 10,
+
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+
 }
