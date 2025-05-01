@@ -9,11 +9,42 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 
 from .serializers import *
 from .models import User, Book, Wishlist, Review, Order, Payment, Category, Transaction
 from .permissions import IsOwnerOrReadOnly
 from .filters import BookFilter
+
+
+
+@api_view(['GET'])
+def info_page(request):
+    data = {
+        'register': request.build_absolute_uri(reverse('register')),
+        'login': request.build_absolute_uri(reverse('login')),
+        'logout': request.build_absolute_uri(reverse('logout')),
+        'userlist': request.build_absolute_uri(reverse('user-list')),
+        'books': request.build_absolute_uri(reverse('book-list')),
+        'one_book': request.build_absolute_uri(reverse('book-detail', kwargs={'pk': 1})),
+        'trending_books': request.build_absolute_uri(reverse('book-trending-list')),
+        'category': request.build_absolute_uri(reverse('category-list')),
+        'one_category': request.build_absolute_uri(reverse('category-detail', kwargs={'pk': 1})),
+        'wishlist': request.build_absolute_uri(reverse('wishlist-list')),
+        'one_wishlist': request.build_absolute_uri(reverse('wishlist-detail', kwargs={'pk': 1})),
+        'reviews': request.build_absolute_uri(reverse('review-list')),
+        'one_review': request.build_absolute_uri(reverse('review-detail', kwargs={'pk': 1})),
+        'orders': request.build_absolute_uri(reverse('order-list')),
+        'one_order': request.build_absolute_uri(reverse('order-detail', kwargs={'pk': 1})),
+        'payments': request.build_absolute_uri(reverse('payment-list')),
+        'one_payment': request.build_absolute_uri(reverse('payment-detail', kwargs={'pk': 1})),
+        'transactions': request.build_absolute_uri(reverse('transaction-list')),
+        'one_transaction':request.build_absolute_uri(reverse('transaction-detail', kwargs={'pk': 1})),
+    }
+
+    return Response(data)
+
+
 
 @api_view(['POST'])
 def register_user(request):
@@ -119,19 +150,19 @@ def category_detail(request, pk):
 
 
 
-# @api_view(['GET', 'POST'])
-# def book_list(request):
-#     if request.method == 'GET':
-#         books = Book.objects.all()
-#         serializer = BookSerializer(books, many=True)
-#         return Response(serializer.data)
+@api_view(['GET', 'POST'])
+def book_list(request):
+    if request.method == 'GET':
+        books = Book.objects.all()
+        serializer = BookSerializer(books, many=True)
+        return Response(serializer.data)
     
-#     elif request.method == 'POST':
-#         serializer = BookSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'POST':
+        serializer = BookSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class BookList(generics.ListCreateAPIView):
     queryset = Book.objects.all()
