@@ -5,6 +5,8 @@ from django.db import models
 from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.conf import settings
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
 
 class User(AbstractUser):
@@ -105,13 +107,19 @@ class Order(models.Model):
         ('cancelled', 'Cancelled'),
     ]
 
-    user = models.ForeignKey(User, related_name='snippets', on_delete=models.CASCADE)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    user = models.ForeignKey(User, related_name='orders', on_delete=models.CASCADE)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, validators=[MinValueValidator(0)])
     order_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     shipping_address = models.TextField()
 
+    def update_total_price(self):
+        total = sum(transaction.book.price for transaction in self.transactions.all())
+        self.total_price = total
+        self.save()
+
     def __str__(self):
         return f"Order #{self.id} by {self.user.username}"
+
 
 
 
@@ -147,4 +155,25 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"{self.payment_method} - {self.amount} - {self.payment_status}"
+    
+
+
+# Signal to update total_price when a transaction is added or modified
+@receiver(post_save, sender=Transaction)
+def update_order_total_price_on_save(sender, instance, **kwargs):
+    instance.order.update_total_price()
+
+# Signal to update total_price when a transaction is deleted
+@receiver(post_delete, sender=Transaction)
+def update_order_total_price_on_delete(sender, instance, **kwargs):
+    instance.order.update_total_price()
+
+
+
+
+# ---------------- Notes ------------------
+
+# -1- (related_name) is used in the reverse relation. We notice that Transaction has order attribute as a foreign
+# key with related_name = 'transactions'. So I can use put transactions in the fields of Order when making the 
+# OrderSerializer. If I didn't put related_name, I can use the transaction there in the form (transaction_set)
 
