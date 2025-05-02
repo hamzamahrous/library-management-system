@@ -4,6 +4,7 @@ import { SignUpComponent } from './auth/sign-up/sign-up.component';
 import { HomeComponent } from './home/home.component';
 import { BookDetailsComponent } from './books/book-details/book-details.component';
 import { MainLayoutComponent } from './main-layout/main-layout.component';
+import { AllBooksComponent } from './books/all-books/all-books.component';
 
 export const routes: Routes = [
   {
@@ -13,6 +14,10 @@ export const routes: Routes = [
       {
         path: '',
         component: HomeComponent,
+      },
+      {
+        path: 'books',
+        component: AllBooksComponent,
       },
       {
         path: 'details/:bookId',

@@ -1,1 +1,54 @@
-<p>all-books works!</p>
+<section class="container mt-5 w-full">
+  <div>
+    <img
+      src="library3.jpeg"
+      alt="Library Image"
+      class="w-full max-h-72 object-cover object-center rounded-md relative brightness-50"
+    />
+  </div>
+
+  <div
+    class="flex flex-col sm:flex-row gap-3 md:gap-0 justify-between items-center my-7"
+  >
+    <span class="text-2xl font-semibold">Books for You!</span>
+    <div class="flex gap-3">
+      <select
+        name="sortBy"
+        class="shadow-md px-3 py-1 rounded-lg hover:shadow-lg"
+        (change)="sortTheBooks($event)"
+      >
+        <option value [disabled]="disableFirstOption">Sort By Price</option>
+        <option value="low_to_high">Low to High</option>
+        <option value="high_to_low">High to Low</option>
+      </select>
+      <button
+        (click)="showFilterBar()"
+        class="shadow-md px-3 py-1 rounded-lg flex justify-center items-center gap-1 hover:bg-slate-800 hover:text-white"
+      >
+        <svg
+          stroke="currentColor"
+          fill="currentColor"
+          stroke-width="0"
+          viewBox="0 0 24 24"
+          class="text-lg"
+          height="1em"
+          width="1em"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M7 11h10v2H7zM4 7h16v2H4zm6 8h4v2h-4z"></path>
+        </svg>
+        Filters
+      </button>
+    </div>
+  </div>
+
+  <div
+    class="mb-10 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:gap-x-8"
+  >
+    @for (bookData of books; track bookData.book_id) {
+    <app-book [book]="bookData"></app-book>
+    }
+  </div>
+</section>
+
+<lib-filter [visible]="showFilter" (close)="showFilter = false"></lib-filter>

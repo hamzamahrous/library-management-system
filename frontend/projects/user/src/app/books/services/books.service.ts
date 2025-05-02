@@ -13,6 +13,9 @@ export class BooksService {
   // Get All Categories
 
   // Get Trending Books
+  getTrendingBooks(): Observable<Book[]> {
+    return this.httpClient.get<Book[]>('api/trending-books');
+  }
 
   getAllBooks(): Observable<Book[]> {
     return this.httpClient.get<Book[]>('api/books');

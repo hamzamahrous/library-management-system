@@ -19,10 +19,10 @@ export class TrendingBooksComponent {
   }
 
   loadBooks() {
-    this.booksService.getAllBooks().subscribe({
+    this.booksService.getTrendingBooks().subscribe({
       next: (Data) => {
         this.trendingBooks = Data;
-        this.trendingBooks = this.trendingBooks.slice(18, 25);
+        this.trendingBooks.slice(0, 7);
       },
     });
   }
