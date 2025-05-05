@@ -12,10 +12,14 @@ import { FilterComponent } from '../../../../../shared-lib/src/lib/filter/filter
   styleUrl: './all-books.component.css',
 })
 export class AllBooksComponent {
-  showFilter = false;
   private booksService = inject(BooksService);
-  books: Book[] = [];
+  showFilter = false;
   disableFirstOption = false;
+  books: Book[] = [];
+  filterBooks: Book[] = [];
+  filteredCategoriesIds: boolean[] = [true, true, true, true, true];
+  maxPrice = 50;
+  minRating = 1;
 
   ngOnInit(): void {
     this.loadBooks();
@@ -25,6 +29,8 @@ export class AllBooksComponent {
     this.booksService.getAllBooks().subscribe({
       next: (Data) => {
         this.books = Data;
+        this.filterBooks = Data;
+        console.log(Data);
       },
     });
   }
@@ -34,9 +40,9 @@ export class AllBooksComponent {
     const selectedValue = selectElement.value;
 
     if (selectedValue === 'low_to_high') {
-      this.books.sort((a, b) => Number(a.price) - Number(b.price));
+      this.filterBooks.sort((a, b) => Number(a.price) - Number(b.price));
     } else if (selectedValue === 'high_to_low') {
-      this.books.sort((a, b) => Number(b.price) - Number(a.price));
+      this.filterBooks.sort((a, b) => Number(b.price) - Number(a.price));
     }
 
     this.disableFirstOption = true;
@@ -44,5 +50,45 @@ export class AllBooksComponent {
 
   showFilterBar() {
     this.showFilter = true;
+  }
+
+  updateMaxPrice(updatedMaxPrice: number) {
+    this.maxPrice = updatedMaxPrice;
+    this.applyFilters();
+  }
+
+  updateMinRating(updatedMinRating: number) {
+    this.minRating = updatedMinRating;
+    this.applyFilters();
+  }
+
+  onCategorySelectionChanged(selectedCategories: boolean[]) {
+    const anyChecked = selectedCategories.some((val) => val);
+
+    if (anyChecked) {
+      this.filteredCategoriesIds = selectedCategories;
+    } else {
+      this.filteredCategoriesIds = [true, true, true, true, true];
+    }
+
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    this.filterBooks = this.books.filter((book) => {
+      const matchesCategory = this.filteredCategoriesIds[book.category_id - 1]
+        ? true
+        : false;
+
+      const matchesPrice = +book.price <= this.maxPrice;
+      const matchesRating = book.evaluation >= this.minRating;
+
+      if (matchesCategory && matchesPrice && matchesRating) return true;
+      else return false;
+    });
+  }
+
+  resetFilter() {
+    this.filterBooks = this.books;
   }
 }

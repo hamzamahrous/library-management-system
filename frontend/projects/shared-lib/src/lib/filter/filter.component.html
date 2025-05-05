@@ -2,8 +2,8 @@
   class="z-10 p-4 flex flex-col gap-8 fixed top-0 left-0 h-screen bg-gray-300/30 backdrop-blur-md transition-transform"
   [class.-translate-x-full]="!visible"
 >
-  <div class="flex justify-between items-center gap-8">
-    <h1 class="text-xl font-semibold">Filter Products</h1>
+  <div class="flex justify-between items-center gap-6">
+    <h1 class="text-2xl font-bold">Filter Products</h1>
 
     <span class="mt-1" (click)="onCloseClick()">
       <svg
@@ -12,8 +12,8 @@
         stroke-width="0"
         viewBox="0 0 1024 1024"
         class="text-xl cursor-pointer"
-        height="1em"
-        width="1em"
+        height="1.1em"
+        width="1.1em"
         xmlns="http://www.w3.org/2000/svg"
       >
         <path
@@ -22,4 +22,69 @@
       </svg>
     </span>
   </div>
+
+  <form [formGroup]="filterForm">
+    <section>
+      <h2 class="mb-3 text-xl font-semibold">Categories</h2>
+      <div class="flex flex-col gap-2" formArrayName="categoryFormArray">
+        @for (cat of categories; track cat; let i = $index) {
+        <label class="cursor-pointer">
+          <input
+            type="checkbox"
+            name="categories"
+            [formControlName]="i"
+            class="mr-1"
+          />
+          {{ cat.category_name }}
+        </label>
+        }
+      </div>
+    </section>
+
+    <section class="my-10">
+      <h2 class="mb-2 text-xl font-semibold">Price Range</h2>
+      <input
+        type="range"
+        min="0"
+        max="50"
+        step="10"
+        name="priceRange"
+        class="w-full"
+        title="priceRange"
+        formControlName="priceControl"
+      />
+      <div class="flex justify-between items-center text-sm">
+        <span>0</span>
+        <span>50</span>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="mb-3 text-xl font-semibold">Rating</h2>
+      <div class="flex flex-col gap-2">
+        @for (rating of [1, 2, 3, 4]; track rating) {
+        <label class="cursor-pointer">
+          <input
+            type="radio"
+            title="Rating"
+            class="mr-1"
+            [value]="rating"
+            formControlName="ratingControl"
+          />
+          {{ rating }} Stars & above
+        </label>
+        }
+      </div>
+    </section>
+
+    <button
+      type="button"
+      class="px-2 py-1 bg-slate-950 text-white rounded-md w-full mt-16"
+      title="Reset"
+      name="Reset"
+      (click)="resetForm()"
+    >
+      Reset
+    </button>
+  </form>
 </section>

@@ -1,4 +1,4 @@
-<section class="container mt-5 w-full">
+<section class="container mt-4 w-full">
   <div>
     <img
       src="library3.jpeg"
@@ -24,6 +24,8 @@
       <button
         (click)="showFilterBar()"
         class="shadow-md px-3 py-1 rounded-lg flex justify-center items-center gap-1 hover:bg-slate-800 hover:text-white"
+        [class.bg-slate-800]="showFilter"
+        [class.text-white]="showFilter"
       >
         <svg
           stroke="currentColor"
@@ -42,13 +44,28 @@
     </div>
   </div>
 
+  @if(filterBooks.length > 0){
   <div
     class="mb-10 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:gap-x-8"
   >
-    @for (bookData of books; track bookData.book_id) {
+    @for (bookData of filterBooks; track bookData.book_id) {
     <app-book [book]="bookData"></app-book>
     }
   </div>
+  } @else {
+  <div class="text-center mt-20 text-gray-300 text-4xl">
+    No books match your current filters.
+  </div>
+  }
 </section>
 
-<lib-filter [visible]="showFilter" (close)="showFilter = false"></lib-filter>
+@if (showFilter) {
+<lib-filter
+  [visible]="showFilter"
+  (close)="showFilter = false"
+  (categorySelectionChanged)="onCategorySelectionChanged($event)"
+  (priceRangeChanged)="updateMaxPrice($event)"
+  (ratingSelectionChanged)="updateMinRating($event)"
+  (resetFilter)="resetFilter()"
+></lib-filter>
+}
