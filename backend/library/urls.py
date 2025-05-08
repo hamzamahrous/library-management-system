@@ -1,7 +1,14 @@
 from django.urls import path, include
 from .views import *
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 urlpatterns = [
+
+    # YOUR PATTERNS
+    path('schema/', SpectacularAPIView.as_view(), name='schema'),
+    # Optional UI:
+    path('schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
     path('', info_page, name='info'),
 
@@ -11,12 +18,12 @@ urlpatterns = [
     path('userlist/', user_list, name='user-list'),
 
     path('books/', book_list, name='book-list'),
-    path('books/<int:pk>', book_detail, name='book-detail'),
+    path('books/<int:pk>/', book_detail, name='book-detail'),
 
     path('trending-books/', book_trending_list, name='book-trending-list'),
 
     path('category/', category_list, name='category-list'),
-    path('category/<int:pk>', category_detail, name='category-detail'),
+    path('category/<int:pk>/', category_detail, name='category-detail'),
 
     path('wishlist/', wishlist_list, name='wishlist-list'),
     path('wishlist/<int:pk>/', wishlist_detail, name='wishlist-detail'),
