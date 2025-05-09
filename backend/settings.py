@@ -11,22 +11,32 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
+from decouple import config
 from pathlib import Path
+from django.core.management.utils import get_random_secret_key
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+REPO_DIR = BASE_DIR.parent
+print(REPO_DIR)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = os.environ.get("DJANGO-SECRET-KEY")
-SECRET_KEY = "django-insecure-n$bw(-q#xh#8q((319*bao8*%ia-p*366wp57m%4m00^zu+huy"
+SECRET_KEY = config('DJANGO-SECRET-KEY', default=get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DJANGO-DEBUG', cast=bool, default=True)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '*',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*",
+]
 
 # Application definition
 
