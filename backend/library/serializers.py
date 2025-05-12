@@ -2,6 +2,16 @@ from rest_framework import serializers
 from .models import *
 
 
+#---------------- Changing and reseting password serializers --------
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+
+class ResetPasswordEmailSerilaizer(serializers.Serializer):
+    email=serializers.EmailField(required=True)
+
+# ------------------------------- ------------------------------------
 
 class UserSerializer(serializers.ModelSerializer):
     # transactions = serializers.ReadOnlyField(view_name='transaction-list')

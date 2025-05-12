@@ -50,9 +50,12 @@ INSTALLED_APPS = [
     # ...
     'rest_framework',
     'rest_framework.authtoken',  # For token authentication.
-    'library',
+    'django_rest_passwordreset',
     'django_filters',
     'drf_spectacular',
+
+    # updating the app reference
+    'library.apps.LibraryConfig'
 ]
 
 MIDDLEWARE = [
@@ -65,12 +68,13 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+
 ROOT_URLCONF = "backend.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / 'templates/'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -137,11 +141,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = 'library.User'
 
 REST_FRAMEWORK = {
-    # 'DEFAULT_AUTHENTICATION_CLASSES': [ 
-    #     'rest_framework.authentication.TokenAuthentication',
-    #     'rest_framework.authentication.BasicAuthentication',
-    #     'rest_framework.authentication.SessionAuthentication',
-    # ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [ 
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
     # 'DEFAULT_PERMISSION_CLASSES':[
     #     'rest_framework.authentication.IsAuthenticatedOrReadOnly',
     # ]
@@ -154,6 +158,7 @@ REST_FRAMEWORK = {
 
 }
 
+
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Online Book Store',
     'DESCRIPTION': 'This is a store for books to be bought online',
@@ -161,3 +166,27 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
     # OTHER SETTINGS
 }
+
+EMAIL_HOST_USER = None
+# Email Backend Configuration
+try:
+    EMAIL_HOST_USER = config('EMAIL-HOST-USER')
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Replace with your preferred backend
+except:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_PORT = 587  # Replace with your email port
+EMAIL_USE_TLS = True  # Set to False if your email server doesn't use TLS
+
+# Google mail
+EMAIL_HOST = 'smtp.gmail.com'  # Replace with your email host for gmail -> 'smtp.gmail.com'
+
+# # Outlook/Hotmail/Office 365
+# EMAIL_HOST = 'smtp.office365.com'
+
+# # Yahoo mail
+# EMAIL_HOST = 'smtp.mail.yahoo.com'
+
+# Users receive emails from this email.
+EMAIL_HOST_USER = config('EMAIL-HOST-USER', default='your_email_username')  # Replace with your email username
+EMAIL_HOST_PASSWORD = config('EMAIL-HOST-PASSWORD', default='your_email_password')  # Replace with your email password
