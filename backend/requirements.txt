@@ -4,3 +4,4 @@ django-filter
 # drf-spectacular
 python-decouple
 django-rest-passwordreset
+django-cors-headers

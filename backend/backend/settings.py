@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     'django_filters',
     # 'drf_spectacular',
 
+    'corsheaders',
+
     # updating the app reference
     'library.apps.LibraryConfig'
 ]
@@ -66,8 +68,11 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
+CORS_ALLOW_ALL_ORIGINGS = True
 
 ROOT_URLCONF = "backend.urls"
 
