@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',  # For token authentication.
     'django_rest_passwordreset',
     'django_filters',
-    'drf_spectacular',
+    # 'drf_spectacular',
 
     # updating the app reference
     'library.apps.LibraryConfig'
@@ -154,18 +154,18 @@ REST_FRAMEWORK = {
     # 'PAGE_SIZE': 10,
 
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    # 'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
 }
 
 
-SPECTACULAR_SETTINGS = {
-    'TITLE': 'Online Book Store',
-    'DESCRIPTION': 'This is a store for books to be bought online',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
-    # OTHER SETTINGS
-}
+# SPECTACULAR_SETTINGS = {
+#     'TITLE': 'Online Book Store',
+#     'DESCRIPTION': 'This is a store for books to be bought online',
+#     'VERSION': '1.0.0',
+#     'SERVE_INCLUDE_SCHEMA': False,
+#     # OTHER SETTINGS
+# }
 
 EMAIL_HOST_USER = None
 # Email Backend Configuration
