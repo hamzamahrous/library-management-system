@@ -21,6 +21,24 @@
             "username": "amr",
             "email": "amr@gmail.com",
             "password": "amr1234"     
+        },
+        {
+            "id": 5,
+            "username": "ahmed@gmial.com",
+            "email": "ahmed@gmail.com",
+            "password": "ahmedadel3032003@"
+        },
+        {
+            "id": 6,
+            "username": "ahmed333",
+            "email": "ahmed333@gmail.com",
+            "password": "ahmedadel3032003333@"
+        },
+        {
+            "id": 7,
+            "username": "ahmed49",
+            "email": "ahmedadel303200349@gmail.com",
+            "password": "Ahmed_Adel30@@"
         }
         ]
 }

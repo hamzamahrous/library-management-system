@@ -1,12 +1,14 @@
+import pdb
+
 from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework import status, generics, permissions, filters
+from rest_framework import status, generics, views, permissions, filters
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, update_session_auth_hash
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -45,36 +47,65 @@ def info_page(request):
     return Response(data)
 
 
+# @api_view(['POST'])
+# def register_user(request):
+#     serializer = UserSerializer(data=request.data)
+#     if serializer.is_valid():
+#         serializer.save()
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
-def register_user(request):
-    serializer = UserSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class RegisterUserView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny]
+register_user = RegisterUserView.as_view()
 
 
-@api_view(['POST'])
-def user_login(request):
-    email = request.data.get('email')
-    password = request.data.get('password')
+# @api_view(['POST'])
+# def login_user(request):
+#     email = request.data.get('email')
+#     password = request.data.get('password')
 
-    user = None
-    if '@' in email:
-        try:
-            user = User.objects.get(email=email)
-        except ObjectDoesNotExist:
-            pass
+#     user = None
+#     if '@' in email:
+#         try:
+#             user = User.objects.get(email=email)
+#         except ObjectDoesNotExist:
+#             pass
 
-    if not user:
-        user = authenticate(email=email, password=password)
+#     if not user:
+#         user = authenticate(email=email, password=password)
 
-    if user:
-        token, _ = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key}, status=status.HTTP_200_OK)
+#     if user:
+#         token, _ = Token.objects.get_or_create(user=user)
+#         return Response({'token': token.key}, status=status.HTTP_200_OK)
 
-    return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+#     return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+class LoginUserView(views.APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        user = None
+
+        if '@' in email:
+            try:
+                user = User.objects.get(email=email)
+            except ObjectDoesNotExist:
+                pass
+
+        if not user:
+            user = authenticate(email=email, password=password)
+
+        if user:
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key}, status=status.HTTP_200_OK)
+
+        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+login_user = LoginUserView.as_view()
 
 
 @api_view(['POST'])
@@ -100,7 +131,18 @@ class UserList(generics.ListAPIView):
 user_list = UserList.as_view()
 
 
-
+def change_password(request):
+    if request.method == 'POST':
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid:
+            user = request.user
+            if user.check_password(serializer.data.get('old_password')):
+                user.set_password(serializer.data.get('new_password'))
+                user.save()
+                update_session_auth_hash(request, user)  # Updating session after password change
+                return Response({'message': 'Password changed successfully'}, status=status.HTTP_200_OK)
+            return Response({'error': 'Incorrect old password.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -165,6 +207,7 @@ def category_detail(request, pk):
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class BookList(generics.ListCreateAPIView):
+    # pdb.set_trace()
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
