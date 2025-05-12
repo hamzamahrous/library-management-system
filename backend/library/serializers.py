@@ -39,7 +39,11 @@ class UserListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'transactions', 'orders']  # Excluding password
+        fields = ['id', 'username', 'email', 'transactions', 'orders', 'first_name', 'last_name']  # Excluding password
+    
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
 
 
 
