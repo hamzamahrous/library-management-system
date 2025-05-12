@@ -5,17 +5,20 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 urlpatterns = [
 
     # YOUR PATTERNS
-    path('schema/', SpectacularAPIView.as_view(), name='schema'),
-    # Optional UI:
-    path('schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    # path('schema/', SpectacularAPIView.as_view(), name='schema'),
+    # # Optional UI:
+    # path('schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    # path('schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
     path('', info_page, name='info'),
 
     path('register/', register_user, name='register'),
-    path('login/', user_login, name='login'),
+    path('login/', login_user, name='login'),
     path('logout/', user_logout, name='logout'),
     path('userlist/', user_list, name='user-list'),
+
+    # password change & reset
+    path('change_password/', change_password, name='change_password'),
 
     path('books/', book_list, name='book-list'),
     path('books/<int:pk>/', book_detail, name='book-detail'),
