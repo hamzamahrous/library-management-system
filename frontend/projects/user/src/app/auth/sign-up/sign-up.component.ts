@@ -45,7 +45,7 @@ export class SignUpComponent {
           Validators.required,
           Validators.minLength(2),
           Validators.maxLength(50),
-          Validators.pattern(/^[A-Za-z]+(?:[ _-][A-Za-z]+)*$/),
+          Validators.pattern(/^[A-Za-z0-9@.+\-_]+$/),
         ],
       }),
       email: new FormControl('', {
@@ -131,7 +131,7 @@ export class SignUpComponent {
       },
 
       error: (err) => {
-        console.error('Full error', err);
+        this.errorMessage = '';
 
         if (err.status === 0) {
           this.errorMessage = 'Unable to connect to the server.';
@@ -139,6 +139,16 @@ export class SignUpComponent {
           this.errorMessage = 'Invalid email or password.';
         } else if (err.status === 500) {
           this.errorMessage = 'A server error occurred.';
+        } else if (
+          err.error?.username?.includes(
+            'A user with that username already exists.'
+          )
+        ) {
+          this.errorMessage = "This username isn't available";
+        } else if (
+          err.error?.email?.includes('user with this email already exists.')
+        ) {
+          this.errorMessage = 'A user with this email already exists.';
         } else if (err.error?.message) {
           this.errorMessage = err.error.message;
         } else {

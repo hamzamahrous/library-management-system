@@ -5,6 +5,10 @@ import { HomeComponent } from './home/home.component';
 import { BookDetailsComponent } from './books/book-details/book-details.component';
 import { MainLayoutComponent } from './main-layout/main-layout.component';
 import { AllBooksComponent } from './books/all-books/all-books.component';
+import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
+import { UserProfileComponent } from './user-profile/user-profile.component';
+import { CartComponent } from './cart/cart.component';
+import { WhishListComponent } from './whish-list/whish-list.component';
 
 export const routes: Routes = [
   {
@@ -14,6 +18,18 @@ export const routes: Routes = [
       {
         path: '',
         component: HomeComponent,
+      },
+      {
+        path: 'user-profile',
+        component: UserProfileComponent,
+      },
+      {
+        path: 'cart',
+        component: CartComponent,
+      },
+      {
+        path: 'whish-list',
+        component: WhishListComponent,
       },
       {
         path: 'books',
@@ -32,5 +48,9 @@ export const routes: Routes = [
   {
     path: 'sign-up',
     component: SignUpComponent,
+  },
+  {
+    path: 'forgot-password',
+    component: ForgotPasswordComponent,
   },
 ];
