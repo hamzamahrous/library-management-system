@@ -5,3 +5,7 @@ django-filter
 python-decouple
 django-rest-passwordreset
 django-cors-headers
+django-extensions
+pyparsing
+pydot
+django-silk
