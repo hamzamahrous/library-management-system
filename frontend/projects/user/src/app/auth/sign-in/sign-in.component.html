@@ -49,18 +49,28 @@
       </p>
       }
 
+      <a routerLink="/forgot-password" class="text-sm text-center text-mainBlue"
+        >Forgot Password?</a
+      >
+
       <button
-        class="w-full text-white py-2 bg-mainBlue rounded-md mt-8 disabled:opacity-50"
+        class="w-full text-white py-2 bg-slate-900 rounded-md mt-2 disabled:opacity-50"
         type="submit"
         [disabled]="form.invalid"
       >
         Sign in
       </button>
+
+      @if(errorMessage){
+      <p class="text-sm text-red-500 text-center mb-4">
+        {{ errorMessage }}
+      </p>
+      }
     </form>
   </div>
   <div class="hidden md:block image basis-1/2 relative">
     <span
-      class="block w-full h-full bg-black opacity-50 absolute left-0 top-0"
+      class="block w-full h-full bg-black opacity-30 absolute left-0 top-0"
     ></span>
     <img
       src="pexels-wendelmoretti-1850022.jpg"
