@@ -18,7 +18,7 @@ urlpatterns = [
     path('userlist/', user_list, name='user-list'),
 
     # password change & reset
-    path('change_password/', change_password, name='change_password'),
+    path('change_password/', change_password, name='change-password'),
 
     path('books/', book_list, name='book-list'),
     path('books/<int:pk>/', book_detail, name='book-detail'),

@@ -52,9 +52,12 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',  # For token authentication.
     'django_rest_passwordreset',
     'django_filters',
+
+    'django_extensions',
     # 'drf_spectacular',
 
     'corsheaders',
+    'silk',
 
     # updating the app reference
     'library.apps.LibraryConfig'
@@ -62,6 +65,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    'silk.middleware.SilkyMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -171,6 +175,13 @@ REST_FRAMEWORK = {
 #     'SERVE_INCLUDE_SCHEMA': False,
 #     # OTHER SETTINGS
 # }
+
+GRAPH_MODELS = {
+    'all_applications': True,
+    'group_models': True,
+    'app_labels': ["library"],
+}
+
 
 EMAIL_HOST_USER = None
 # Email Backend Configuration

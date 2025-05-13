@@ -59,6 +59,11 @@ class BookSerializer(serializers.ModelSerializer):
         model = Book
         fields = '__all__'
 
+    def validate_price(self, value):
+        if value < 0:
+            raise serializers.ValidationError("Price can't be less than zero")
+        return value
+
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -99,14 +104,13 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 
-
 class TransactionSerializer(serializers.ModelSerializer):
     book_price = serializers.ReadOnlyField(source='book.price', default='Not Specified')
     book_name = serializers.ReadOnlyField(source='book.book_name', default = 'Not Specified')
 
     class Meta:
         model = Transaction
-        fields = ['order', 'book', 'book_name', 'book_price', 'user']
+        fields = ['order', 'book', 'book_name', 'book_price', 'user', 'quantity']
 
     def get_book_price(self, obj):
         return obj.book.price if obj.book else None

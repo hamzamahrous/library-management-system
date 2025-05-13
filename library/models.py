@@ -1,5 +1,5 @@
 # accounts/models.py
-
+import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
@@ -12,8 +12,7 @@ from django.dispatch import receiver
 class User(AbstractUser):
     # first_name = models.CharField(max_length=100)
     # last_name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-
+    email = models.EmailField(unique=True) 
 
     # Add custom fields here, if needed
 
@@ -24,7 +23,7 @@ class User(AbstractUser):
 # CREATE TABLE Books (
 #     book_id INTEGER PRIMARY KEY AUTOINCREMENT,
 #     book_name text,
-#     author text,
+#     author text, 
 #     publisher text,
 #     publishing_date Date,
 #     category_id text,  -- foreign key from categories table
@@ -88,6 +87,7 @@ class Wishlist(models.Model): # we need to add some users first to add a whishli
 
 
 class Review(models.Model):
+    review_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews")
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="reviews")
     rating = models.PositiveSmallIntegerField(validators=[MinValueValidator(0), MaxValueValidator(5)])
@@ -100,17 +100,18 @@ class Review(models.Model):
 
 
 class Order(models.Model):
-    STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('shipped', 'Shipped'),
-        ('delivered', 'Delivered'),
-        ('cancelled', 'Cancelled'),
-    ]
+    class StatusChoices(models.TextChoices):
+        PENDING = 'Pending'
+        CONFIRMED = 'Confirmed'
+        CANCELLED = 'Cancelled'
 
-    user = models.ForeignKey(User, related_name='orders', on_delete=models.CASCADE)
+    # order_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    order_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, validators=[MinValueValidator(0)])
-    order_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    order_status = models.CharField(max_length=10, choices=StatusChoices.choices, default=StatusChoices.PENDING)
     shipping_address = models.TextField()
+    created_at =  models.DateTimeField(default=timezone.now)
 
     def update_total_price(self):
         total = sum(transaction.book.price for transaction in self.transactions.all())
@@ -128,29 +129,35 @@ class Transaction(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="transactions")
     user = models.ForeignKey(User,  on_delete=models.CASCADE, related_name="transactions")
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="transactions")
+    quantity = models.PositiveIntegerField(default=1)
 
+    @property
+    def books_total_price(self):
+        return self.book.price * self.quantity
+    
     def __str__(self):
-        return f"Transaction: {self.user.username} bought {self.book.book_name}"
+        return f"Transaction: {self.user.username} bought {self.quantity} {self.book.book_name}"
 
 
 class Payment(models.Model):
-    PAYMENT_METHODS = [
-        ('Credit Card', 'Credit Card'),
-        ('PayPal', 'PayPal'),
-        ('Bank Transfer', 'Bank Transfer'),
-        ('Cash on Delivery', 'Cash on Delivery'),
-    ]
-    PAYMENT_STATUS = [
-        ('Pending', 'Pending'),
-        ('Completed', 'Completed'),
-        ('Failed', 'Failed'),
-    ]
+    class PaymentMethod(models.TextChoices):
+        CREDIT_CARD = 'Credit Card'
+        PAYPAL = 'PayPal'
+        BANK_TRANSFER = 'Bank Transfer'
+        CASH_ON_DELIVERY = 'Cash on Delivery'
 
+    class PaymentStatus(models.TextChoices):
+        PENDING = 'Pending'
+        CONFIRMED = 'Confirmed'
+        FAILED = 'Failed'
+
+    # payment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    payment_id = models.AutoField(primary_key=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="payments")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="payments")
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS)
+    payment_method = models.CharField(max_length=20, choices=PaymentMethod, default=PaymentMethod.CREDIT_CARD)
     amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
-    payment_status = models.CharField(max_length=10, choices=PAYMENT_STATUS, default='Pending')
+    payment_status = models.CharField(max_length=10, choices=PaymentStatus, default=PaymentStatus.PENDING)
     payment_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -176,4 +183,7 @@ def update_order_total_price_on_delete(sender, instance, **kwargs):
 # -1- (related_name) is used in the reverse relation. We notice that Transaction has order attribute as a foreign
 # key with related_name = 'transactions'. So I can use put transactions in the fields of Order when making the 
 # OrderSerializer. If I didn't put related_name, I can use the transaction there in the form (transaction_set)
+
+# -2- (UUID Primary Key) I face a problem making order and payment uuid for their primary key, because at this case, I 
+# must remove all last migrations (remove database data) but I didn't want that at that time.
 

@@ -26,6 +26,7 @@ def info_page(request):
         'register': request.build_absolute_uri(reverse('register')),
         'login': request.build_absolute_uri(reverse('login')),
         'logout': request.build_absolute_uri(reverse('logout')),
+        'password_reset': request.build_absolute_uri(reverse('change-password')),
         'userlist': request.build_absolute_uri(reverse('user-list')),
         'books': request.build_absolute_uri(reverse('book-list')),
         'one_book': request.build_absolute_uri(reverse('book-detail', kwargs={'pk': 1})),
@@ -97,8 +98,10 @@ class LoginUserView(views.APIView):
             except ObjectDoesNotExist:
                 pass
 
-        if not user:
+        try:
             user = authenticate(email=email, password=password)
+        except:
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
         if user:
             token, _ = Token.objects.get_or_create(user=user)
@@ -126,7 +129,7 @@ def user_logout(request):
 #     return Response(serializer.data)
 
 class UserList(generics.ListAPIView):
-    queryset = User.objects.all()
+    queryset = User.objects.prefetch_related('transactions').all()
     serializer_class = UserListSerializer
 user_list = UserList.as_view()
 
