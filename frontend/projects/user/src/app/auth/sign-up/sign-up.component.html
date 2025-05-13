@@ -1,15 +1,15 @@
 <section class="flex h-screen w-full font-inter justify-between">
   <div
-    class="p-8 md:p-24 flex flex-col justify-center items-center basis-full md:basis-1/2 md:items-start"
+    class="p-8 md:p-24 flex flex-col justify-center items-center basis-full lg:basis-1/2 md:items-start"
   >
     <lib-logo class="w-full"></lib-logo>
-    <h2 class="mb-12 md:mb-6 text-2xl md:text-3xl font-bold">
+    <h2 class="mb-10 md:mb-4 text-2xl md:text-3xl font-bold">
       Register a new account
     </h2>
 
     <form
       action=""
-      class="w-full flex flex-col gap-6 mt-8"
+      class="w-full flex flex-col gap-4 mt-8"
       [formGroup]="form"
       (ngSubmit)="onSubmit()"
     >
@@ -37,6 +37,23 @@
       @if(nameIsInvalid){
       <p class="text-sm text-red-500 text-center">
         Please enter a valid name (only letters, min 2, max 50 characters).
+      </p>
+      }
+
+      <div class="input flex flex-col">
+        <label for="username" class="text-sm mb-2">User Name</label>
+        <input
+          type="text"
+          id="username"
+          placeholder="username"
+          class="border border-gray-300 rounded-md w-full text-sm px-3 py-[9px] focus:outline-none"
+          formControlName="userName"
+        />
+      </div>
+      @if(usernameIsInvalid){
+      <p class="text-sm text-red-500 text-center">
+        Username must be 2–50 letters and can include spaces, underscores or
+        hyphens between words.
       </p>
       }
 
@@ -92,22 +109,26 @@
       }
 
       <button
-        class="w-full text-white py-2 bg-mainBlue rounded-md mt-8 disabled:opacity-50"
+        class="w-full text-white py-2 bg-slate-900 rounded-md mt-2 disabled:opacity-50"
         type="submit"
         [disabled]="form.invalid"
       >
         Sign up
       </button>
+
+      @if (this.errorMessage) {
+      <p class="text-sm text-red-500 text-center">{{ errorMessage }}</p>
+      }
     </form>
   </div>
-  <div class="hidden md:block image basis-1/2 relative">
+  <div class="hidden lg:block image basis-1/2 relative">
     <span
-      class="block w-full h-full bg-black opacity-50 absolute left-0 top-0"
+      class="block w-full h-full bg-black opacity-30 absolute left-0 top-0"
     ></span>
     <img
       src="pexels-wendelmoretti-1850022.jpg"
       alt=""
-      class="w-full h-full hidden md:block"
+      class="w-full h-full hidden lg:block"
     />
   </div>
 </section>
