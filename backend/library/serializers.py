@@ -59,6 +59,11 @@ class BookSerializer(serializers.ModelSerializer):
         model = Book
         fields = '__all__'
 
+    def validate_price(self, value):
+        if value < 0:
+            raise serializers.ValidationError("Price can't be less than zero")
+        return value
+
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -70,18 +75,50 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class WishlistSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+
     class Meta:
         model = Wishlist
         fields = '__all__'
+
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
+    
+    def update(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().update(validated_data)
 
 
 
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+    rating = serializers.FloatField(
+    min_value=0.0,
+    max_value=5.0,
+    error_messages={
+        'min_value': 'Rating must be at least 0.',
+        'max_value': 'Rating cannot be more than 5.'
+    })
+
     class Meta:
         model = Review
         fields = '__all__'
+
+    def validate_rating(self, value):
+        """
+        Making sure 0 =< rating <= 5
+        """
+        if value < 0 or value > 5:
+            return serializers.ValidationError("Rating must be between 0 and 5")
+        return value
+
+
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
 
 
 
@@ -95,21 +132,36 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {'total_price': {'read_only': True},
         }
-        
 
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
+        
 
 
 
 class TransactionSerializer(serializers.ModelSerializer):
     book_price = serializers.ReadOnlyField(source='book.price', default='Not Specified')
     book_name = serializers.ReadOnlyField(source='book.book_name', default = 'Not Specified')
+    user = serializers.ReadOnlyField(source='user.username')
 
     class Meta:
         model = Transaction
-        fields = ['order', 'book', 'book_name', 'book_price', 'user']
+        fields = ['order', 'book', 'book_name', 'book_price', 'user', 'quantity']
+        extra_kwargs = {
+            'user' : {'read_only' : True}
+        }
+        
 
     def get_book_price(self, obj):
         return obj.book.price if obj.book else None
+    
+    def get_order(self, obj):
+        return obj.order if obj.order.user == self.user else None
+    
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
     
 
 

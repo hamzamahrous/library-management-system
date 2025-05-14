@@ -1,4 +1,5 @@
 import pdb
+import stripe
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -6,16 +7,17 @@ from rest_framework import status, generics, views, permissions, filters
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 
 from django.contrib.auth import authenticate, update_session_auth_hash
 from django.core.exceptions import ObjectDoesNotExist
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
 from .serializers import *
 from .models import User, Book, Wishlist, Review, Order, Payment, Category, Transaction
-from .permissions import IsOwnerOrReadOnly
+from .permissions import IsOwnerOrReadOnly, IsOwnerOnly
 from .filters import BookFilter
 
 
@@ -26,6 +28,7 @@ def info_page(request):
         'register': request.build_absolute_uri(reverse('register')),
         'login': request.build_absolute_uri(reverse('login')),
         'logout': request.build_absolute_uri(reverse('logout')),
+        'password_reset': request.build_absolute_uri(reverse('change-password')),
         'userlist': request.build_absolute_uri(reverse('user-list')),
         'books': request.build_absolute_uri(reverse('book-list')),
         'one_book': request.build_absolute_uri(reverse('book-detail', kwargs={'pk': 1})),
@@ -97,8 +100,10 @@ class LoginUserView(views.APIView):
             except ObjectDoesNotExist:
                 pass
 
-        if not user:
+        try:
             user = authenticate(email=email, password=password)
+        except:
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
         if user:
             token, _ = Token.objects.get_or_create(user=user)
@@ -126,7 +131,7 @@ def user_logout(request):
 #     return Response(serializer.data)
 
 class UserList(generics.ListAPIView):
-    queryset = User.objects.all()
+    queryset = User.objects.prefetch_related('transactions').all()
     serializer_class = UserListSerializer
 user_list = UserList.as_view()
 
@@ -269,80 +274,121 @@ book_detail = BookDetail.as_view()
 
 
 
-@api_view(['GET', 'POST'])
-def wishlist_list(request):
-    if request.method == 'GET':
-        wishlist = Wishlist.objects.all()
-        serializer = WishlistSerializer(wishlist, many=True)
-        return Response(serializer.data)
+# @api_view(['GET', 'POST'])
+# def wishlist_list(request):
+#     if request.method == 'GET':
+#         wishlist = Wishlist.objects.all()
+#         serializer = WishlistSerializer(wishlist, many=True)
+#         return Response(serializer.data)
 
-    elif request.method == 'POST':
-        serializer = WishlistSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     elif request.method == 'POST':
+#         serializer = WishlistSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class WishlistList(generics.ListCreateAPIView):
+    queryset = Wishlist.objects.all()
+    serializer_class = WishlistSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+                        IsOwnerOrReadOnly]
 
 
-@api_view(['GET', 'DELETE'])
-def wishlist_detail(request, pk):
-    # try:
-    #     item = Wishlist.objects.get(pk=pk)
-    # except Wishlist.DoesNotExist:
-    #     return Response(status=status.HTTP_404_NOT_FOUND)
-    item = get_object_or_404(Wishlist, pk=pk)
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
-    if request.method == 'GET':
-        serializer = WishlistSerializer(item)
-        return Response(serializer.data)
+wishlist_list = WishlistList.as_view()
 
-    elif request.method == 'DELETE':
-        item.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+
+# @api_view(['GET', 'DELETE'])
+# def wishlist_detail(request, pk):
+#     # try:
+#     #     item = Wishlist.objects.get(pk=pk)
+#     # except Wishlist.DoesNotExist:
+#     #     return Response(status=status.HTTP_404_NOT_FOUND)
+#     item = get_object_or_404(Wishlist, pk=pk)
+
+#     if request.method == 'GET':
+#         serializer = WishlistSerializer(item)
+#         return Response(serializer.data)
+
+#     elif request.method == 'DELETE':
+#         item.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
     
+class WishlistDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Wishlist.objects.all()
+    serializer_class = WishlistSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+                        IsOwnerOrReadOnly]
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+wishlist_detail = WishlistDetail.as_view()
 
 
+# @api_view(['GET', 'POST'])
+# def review_list(request):
+#     if request.method == 'GET':
+#         reviews = Review.objects.all()
+#         serializer = ReviewSerializer(reviews, many=True)
+#         return Response(serializer.data)
+
+#     elif request.method == 'POST':
+#         serializer = ReviewSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ReviewList(generics.ListCreateAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+                        IsOwnerOrReadOnly]
 
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+review_list = ReviewList.as_view()
 
 
-@api_view(['GET', 'POST'])
-def review_list(request):
-    if request.method == 'GET':
-        reviews = Review.objects.all()
-        serializer = ReviewSerializer(reviews, many=True)
-        return Response(serializer.data)
+# @api_view(['GET', 'DELETE', 'PUT'])
+# def review_detail(request, pk):
+#     # try:
+#     #     review = Review.objects.get(pk=pk)
+#     # except Review.DoesNotExist:
+#     #     return Response(status=status.HTTP_404_NOT_FOUND)
+#     review = get_object_or_404(Review, pk=pk)
 
-    elif request.method == 'POST':
-        serializer = ReviewSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     if request.method == 'GET':
+#         serializer = ReviewSerializer(review)
+#         return Response(serializer.data)
 
+#     elif request.method == 'DELETE':
+#         review.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
 
-@api_view(['GET', 'DELETE', 'PUT'])
-def review_detail(request, pk):
-    # try:
-    #     review = Review.objects.get(pk=pk)
-    # except Review.DoesNotExist:
-    #     return Response(status=status.HTTP_404_NOT_FOUND)
-    review = get_object_or_404(Review, pk=pk)
+#     elif request.method == 'PUT':
+#         serializer = ReviewSerializer(review, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    if request.method == 'GET':
-        serializer = ReviewSerializer(review)
-        return Response(serializer.data)
+class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+                        IsOwnerOrReadOnly]
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
-    elif request.method == 'DELETE':
-        review.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    elif request.method == 'PUT':
-        serializer = ReviewSerializer(review, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+review_detail = ReviewDetail.as_view()
 
 
 
@@ -364,7 +410,7 @@ def review_detail(request, pk):
 class OrderList(generics.ListCreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     print(repr(TransactionSerializer()))
 
 
@@ -401,8 +447,8 @@ order_list = OrderList.as_view()
 class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    # permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-    #                     IsOwnerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+                        IsOwnerOrReadOnly]
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -410,6 +456,65 @@ class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
 order_detail = OrderDetail.as_view()
 
 
+# @api_view(['GET', 'POST'])
+# def transaction_list(request):
+#     if request.method == 'GET':
+#         transactions = Transaction.objects.all()
+#         serializer = TransactionSerializer(transactions, many=True)
+#         return Response(serializer.data)
+
+#     elif request.method == 'POST':
+#         serializer = TransactionSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TransactionList(generics.ListCreateAPIView): 
+    # queryset = Transaction.objects.all()
+    serializer_class = TransactionSerializer
+    permission_classes = [IsOwnerOrReadOnly]
+
+    def get_queryset(self):
+        return Transaction.objects.filter(user=self.request.user.id)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user.id)
+transaction_list = TransactionList.as_view()
+
+
+# @api_view(['GET', 'DELETE', 'PUT'])
+# def transaction_detail(request, pk):
+#     # try:
+#     #     transaction = Transaction.objects.get(pk=pk)
+#     # except Transaction.DoesNotExist:
+#     #     return Response(status=status.HTTP_404_NOT_FOUND)
+#     transaction = get_object_or_404(Transaction, pk=pk)
+
+#     if request.method == 'GET':
+#         serializer = TransactionSerializer(transaction)
+#         return Response(serializer.data)
+
+#     elif request.method == 'DELETE':
+#         transaction.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+
+#     elif request.method == 'PUT':
+#         serializer = TransactionSerializer(transaction, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TransactionDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Transaction.objects.all()
+    serializer_class = TransactionSerializer
+    permission_classes = [IsOwnerOrReadOnly]
+
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+transaction_detail = TransactionDetail.as_view()
 
 
 
@@ -456,63 +561,64 @@ def payment_detail(request, pk):
 
 
 
-# @api_view(['GET', 'POST'])
-# def transaction_list(request):
-#     if request.method == 'GET':
-#         transactions = Transaction.objects.all()
-#         serializer = TransactionSerializer(transactions, many=True)
-#         return Response(serializer.data)
-
-#     elif request.method == 'POST':
-#         serializer = TransactionSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class TransactionList(generics.ListCreateAPIView):
-    queryset = Transaction.objects.all()
-    serializer_class = TransactionSerializer
-    # permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-    #                     IsOwnerOrReadOnly]
-
-    # def perform_create(self, serializer):
-    #     serializer.save(user=self.request.user)
-transaction_list = TransactionList.as_view()
 
 
-# @api_view(['GET', 'DELETE', 'PUT'])
-# def transaction_detail(request, pk):
-#     # try:
-#     #     transaction = Transaction.objects.get(pk=pk)
-#     # except Transaction.DoesNotExist:
-#     #     return Response(status=status.HTTP_404_NOT_FOUND)
-#     transaction = get_object_or_404(Transaction, pk=pk)
+# ------------------------------- Payment ---------------------------------------------
 
-#     if request.method == 'GET':
-#         serializer = TransactionSerializer(transaction)
-#         return Response(serializer.data)
+# stripe.api_key = settings.STRIPE_SECRET_KEY
 
-#     elif request.method == 'DELETE':
-#         transaction.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
+# class CreateCheckoutSessionView(views.APIView):
+#     permission_classes = [IsAuthenticated]
 
-#     elif request.method == 'PUT':
-#         serializer = TransactionSerializer(transaction, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def post(self, request, order_id):
+#         try:
+#             order = Order.objects.get(id=order_id, user=request.user, is_paid=False)
+#             line_items = []
 
-class TransactionDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Transaction.objects.all()
-    serializer_class = TransactionSerializer
-    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+#             for item in order.items.all():
+#                 line_items.append({
+#                     'price_data': {
+#                         'currency': 'usd',
+#                         'product_data': {
+#                             'name': item.book.book_name,
+#                         },
+#                         'unit_amount': int(item.book.price * 100),  # stripe expects amount to be in the smallest currency (cent).
+#                     },
+#                     'quantity': item.quantity,
+#                 })
 
-    
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-transaction_detail = TransactionDetail.as_view()
+#             session = stripe.checkout.Session.create(
+#                 payment_method_types=['card'],
+#                 line_items=line_items,
+#                 mode='payment',
+#                 success_url=settings.FRONTEND_URL + '/payment-success?session_id={CHECKOUT_SESSION_ID}',
+#                 cancel_url=settings.FRONTEND_URL + '/payment-cancelled',
+#                 metadata={'order_id': order.id}
+#             )
+
+#             return Response({'sessionUrl': session.url})
+#         except Order.DoesNotExist:
+#             return Response({'error': 'Order not found or already paid'}, status=404)
+
+# @csrf_exempt
+# def stripe_webhook(request):
+#     payload = request.body
+#     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+#     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
+
+#     try:
+#         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+#     except stripe.error.SignatureVerificationError:
+#         return Response(status=400)
+
+#     if event['type'] == 'checkout.session.completed':
+#         session = event['data']['object']
+#         order_id = session['metadata']['order_id']
+#         Order.objects.filter(id=order_id).update(is_paid=True)
+
+#     return Response(status=200)
+
+# -------------------------------------------------------------------------------------
 
 
 

@@ -18,7 +18,7 @@ urlpatterns = [
     path('userlist/', user_list, name='user-list'),
 
     # password change & reset
-    path('change_password/', change_password, name='change_password'),
+    path('change_password/', change_password, name='change-password'),
 
     path('books/', book_list, name='book-list'),
     path('books/<int:pk>/', book_detail, name='book-detail'),
@@ -43,6 +43,8 @@ urlpatterns = [
     path('transactions/', transaction_list, name='transaction-list'),
     path('transactions/<int:pk>/', transaction_detail, name='transaction-detail'),
 
+    # path('create-checkout-session/<int:order_id>/', CreateCheckoutSessionView.as_view(), name='create-checkout'),
+    # path('webhook/stripe/', stripe_webhook, name='stripe-webhook'),
 
     # path('logout/', user_logout, name='logout'),
     # path('logout/', user_logout, name='logout'),
