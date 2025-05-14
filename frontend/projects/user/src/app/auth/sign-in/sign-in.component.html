@@ -62,10 +62,14 @@
       </button>
 
       @if(errorMessage){
-      <p class="text-sm text-red-500 text-center mb-4">
+      <p class="text-sm text-red-500 text-center">
         {{ errorMessage }}
       </p>
       }
+
+      <a routerLink="/" class="text-sm text-gray-700 text-center"
+        >Continue Browsing As Guest</a
+      >
     </form>
   </div>
   <div class="hidden md:block image basis-1/2 relative">

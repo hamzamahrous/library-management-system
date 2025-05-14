@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { SearchBarComponent } from 'projects/shared-lib/src/lib/search-bar/search-bar.component';
 import { AuthService } from '../auth/auth.service';
 import { Router } from '@angular/router';
@@ -10,10 +10,10 @@ import { Router } from '@angular/router';
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
-  isLoggedIn = this.authService.isLoggedIn$;
+  isLoggedIn: boolean = false;
 
   navigateToUserProfile() {
     this.router.navigate(['user-profile']);
@@ -23,14 +23,26 @@ export class HeaderComponent {
     this.router.navigate(['/']);
   }
 
-  navigateCart() {
+  navigateToCart() {
     this.router.navigate(['cart']);
   }
   navigateToWhishList() {
     this.router.navigate(['whish-list']);
   }
 
+  navigateToSignIn() {
+    this.router.navigate(['sign-in']);
+  }
+
   onSearch(query: string) {
     console.log(query);
+  }
+
+  ngOnInit(): void {
+    this.authService.isLoggedIn$.subscribe({
+      next: (status) => {
+        this.isLoggedIn = status;
+      },
+    });
   }
 }
