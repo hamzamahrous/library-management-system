@@ -9,3 +9,4 @@ django-extensions
 pyparsing
 pydot
 django-silk
+stripe

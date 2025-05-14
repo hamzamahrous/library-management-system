@@ -80,6 +80,8 @@ CORS_ALLOW_ALL_ORIGINGS = True
 
 ROOT_URLCONF = "backend.urls"
 
+FRONTEND_URL = "http://localhost:4200"  # for development
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",

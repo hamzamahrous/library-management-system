@@ -43,6 +43,8 @@ urlpatterns = [
     path('transactions/', transaction_list, name='transaction-list'),
     path('transactions/<int:pk>/', transaction_detail, name='transaction-detail'),
 
+    # path('create-checkout-session/<int:order_id>/', CreateCheckoutSessionView.as_view(), name='create-checkout'),
+    # path('webhook/stripe/', stripe_webhook, name='stripe-webhook'),
 
     # path('logout/', user_logout, name='logout'),
     # path('logout/', user_logout, name='logout'),
