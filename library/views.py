@@ -473,7 +473,7 @@ order_detail = OrderDetail.as_view()
 class TransactionList(generics.ListCreateAPIView): 
     # queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly, IsAuthenticated]
 
     def get_queryset(self):
         return Transaction.objects.filter(user=self.request.user.id)
