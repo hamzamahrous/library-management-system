@@ -46,7 +46,7 @@ npm install
 ### 5. Run the Angular development server
 
 ```bash
-ng serve
+ng serve user
 ```
 
 Or run on a specific port (e.g., 4200):
