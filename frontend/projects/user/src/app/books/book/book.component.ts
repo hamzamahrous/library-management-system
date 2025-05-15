@@ -40,7 +40,7 @@ export class BookComponent implements OnInit {
         },
 
         error: (err) => {
-          console.log(err);
+          console.log(err.error);
         },
       });
     } else {

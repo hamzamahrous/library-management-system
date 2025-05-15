@@ -1,9 +1,10 @@
-<form class="realtive w-full" (ngSubmit)="onSearch()">
+<form class="realtive w-full">
   <input
     [formControl]="searchControl"
     type="text"
     placeholder="Search Books"
     class="bg-gray-200 rounded-full w-full min-w-0 md:min-w-96 px-4 py-2 text-sm focus:outline-none placeholder:font-inter"
+    (input)="onSearchChange()"
   />
   <i
     class="fa fa-search text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 text-sm"
