@@ -1,3 +1,85 @@
+# Angular Frontend Setup
+
+Follow these steps to set up and run the Angular development server.
+
+---
+
+## 🧾 Prerequisites
+
+### 1. Install Node.js and npm
+
+Download and install Node.js from: [https://nodejs.org/](https://nodejs.org/)
+
+Verify installation:
+
+```bash
+node -v
+npm -v
+```
+
+### 2. Install Angular CLI globally
+
+```bash
+npm install -g @angular/cli
+```
+
+---
+
+## 🚀 Getting Started
+
+### 3. Navigate to the frontend directory
+
+```bash
+cd frontend
+```
+
+### 4. Install project dependencies
+
+```bash
+npm install
+```
+
+> 📦 This reads `package.json` and installs all required libraries.
+
+---
+
+### 5. Run the Angular development server
+
+```bash
+ng serve
+```
+
+Or run on a specific port (e.g., 4200):
+
+```bash
+ng serve --port 4200
+```
+
+---
+
+## ✅ Done!
+
+Visit [http://localhost:4200/](http://localhost:4200/) in your browser to access the frontend app.
+
+---
+
+### 🛠 Useful Scripts
+
+If your `package.json` has custom scripts, you can use:
+
+```bash
+npm start
+npm run build
+```
+
+---
+
+> ⚠️ Make sure the backend server (Django) is running if your Angular app depends on it for API requests.
+
+---
+---
+
+
 # Django Backend Setup
 
 Follow these steps to set up and run the Django development server.
