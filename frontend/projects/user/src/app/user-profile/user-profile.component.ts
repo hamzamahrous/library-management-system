@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { User } from './user-type';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -17,4 +18,10 @@ export class UserProfileComponent {
     email: 'hamza.mahrous11@gmail.com',
     orders: [],
   };
+
+  private authService = inject(AuthService);
+
+  logout() {
+    this.authService.logout();
+  }
 }

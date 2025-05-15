@@ -30,7 +30,6 @@ export class AllBooksComponent {
       next: (Data) => {
         this.books = Data;
         this.filterBooks = Data;
-        console.log(Data);
       },
     });
   }

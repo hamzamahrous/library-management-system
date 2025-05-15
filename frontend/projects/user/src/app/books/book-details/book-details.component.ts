@@ -20,7 +20,6 @@ export class BookDetailsComponent {
     this.booksService.getBookDetails(+this.bookId).subscribe({
       next: (Book) => {
         this.book = Book as Book;
-        console.log(this.book);
       },
     });
   }

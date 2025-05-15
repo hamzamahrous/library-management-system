@@ -4,13 +4,48 @@
   </div>
 
   <div class="hidden relative sm:block sm:w-auto mt-2 sm:mt-0">
-    <lib-search-bar (search)="onSearch($event)"></lib-search-bar>
+    <lib-search-bar
+      (search)="onSearch($event, 'desktop')"
+      [clearSearchValue]="clearSearchBarValue"
+    ></lib-search-bar>
+
+    @if(activeSearchContext === 'desktop' && searchedBooks.length) {
+    <ul
+      class="absolute bg-gray-50 w-full max-h-72 overflow-auto rounded-l-md z-10 shadow-md"
+    >
+      @for(book of searchedBooks; track book.book_id) {
+      <li (click)="navigateToBookDetails(book.book_id)">
+        <div
+          class="m-auto flex flex-col gap-2 p-4 rounded-sm shadow-sm bg-white/[0.6] mb-2 max-w-xl cursor-pointer hover:bg-black/5"
+        >
+          <div class="flex items-center justify-between gap-3 w-full">
+            <div class="flex justify-center items-center gap-4">
+              <div class="w-14 h-14 shrink-0 rounded overflow-hidden">
+                <img
+                  [src]="book.cover_image"
+                  alt="Cover"
+                  class="object-cover w-full h-full"
+                />
+              </div>
+
+              <div>
+                <h2 class="text-sm">{{ book.book_name }}</h2>
+              </div>
+            </div>
+
+            <div class="text-xs">{{ book.price | currency }}</div>
+          </div>
+        </div>
+      </li>
+      }
+    </ul>
+    }
   </div>
 
   <div class="flex justify-between items-center gap-2">
     <button
       title="Whish List"
-      (click)="navigateToWhishList()"
+      (click)="isLoggedIn ? navigateToWhishList() : navigateToSignIn()"
       class="w-11 h-11 bg-gray-100 rounded-full flex justify-center items-center"
     >
       <span>
@@ -35,7 +70,7 @@
     </button>
     <button
       title="Bag"
-      (click)="navigateCart()"
+      (click)="isLoggedIn ? navigateToCart() : navigateToSignIn()"
       class="w-11 h-11 bg-gray-100 rounded-full flex justify-center items-center"
     >
       <span>
@@ -63,7 +98,7 @@
       title="My Account"
       class="w-11 h-11 bg-gray-100 rounded-full flex justify-center items-center"
       aria-label="User Account"
-      (click)="navigateToUserProfile()"
+      (click)="isLoggedIn ? navigateToUserProfile() : navigateToSignIn()"
     >
       <svg
         fill="#000000"
@@ -96,11 +131,52 @@
       </svg>
     </button>
     } @else {
-    <button>Sign In</button>
+    <button
+      class="px-3 py-2 border border-gray-100 rounded-md shadow-sm"
+      (click)="navigateToSignIn()"
+    >
+      Sign In
+    </button>
     }
   </div>
 
   <div class="relative block sm:hidden mt-3 w-full">
-    <lib-search-bar (search)="onSearch($event)"></lib-search-bar>
+    <lib-search-bar
+      (search)="onSearch($event, 'mobile')"
+      [clearSearchValue]="clearSearchBarValue"
+    ></lib-search-bar>
+
+    @if(activeSearchContext === 'mobile' && searchedBooks.length) {
+    <ul
+      class="absolute bg-gray-100 w-full max-h-72 overflow-auto rounded-l-md z-10 shadow-md"
+    >
+      @for(book of searchedBooks; track book.book_id) {
+      <li>
+        <div
+          class="m-auto flex flex-col gap-2 p-4 rounded-sm shadow-sm bg-white/[0.6] mb-2 max-w-xl cursor-pointer hover:bg-black/5"
+          (click)="navigateToBookDetails(book.book_id)"
+        >
+          <div class="flex items-center justify-between gap-3 w-full">
+            <div class="flex justify-center items-center gap-4">
+              <div class="w-12 h-12 shrink-0 rounded overflow-hidden">
+                <img
+                  [src]="book.cover_image"
+                  alt="Cover"
+                  class="object-cover w-full h-full object-top"
+                />
+              </div>
+
+              <div>
+                <h2 class="text-sm">{{ book.book_name }}</h2>
+              </div>
+            </div>
+
+            <div class="text-xs">{{ book.price | currency }}</div>
+          </div>
+        </div>
+      </li>
+      }
+    </ul>
+    }
   </div>
 </header>

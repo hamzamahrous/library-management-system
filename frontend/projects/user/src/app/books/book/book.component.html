@@ -1,18 +1,37 @@
-<div class="group relative" (click)="loadBookDetails()">
-  <img
-    [src]="book.cover_image"
-    alt="Book Cover Image."
-    class="aspect-square w-full rounded-md bg-gray-200 object-cover object-top group-hover:opacity-75 lg:aspect-auto lg:h-[300px]"
-  />
-  <div class="mt-4 flex justify-between gap-2">
-    <div>
-      <h3 class="text-sm text-gray-700 font-semibold">
-        <a>
-          <span aria-hidden="true" class="absolute inset-0"></span>
-          {{ book.book_name }}
-        </a>
-      </h3>
+<div>
+  <div class="group relative" (click)="loadBookDetails()">
+    <img
+      [src]="book.cover_image"
+      alt="Book Cover Image."
+      class="aspect-square w-full rounded-md bg-gray-200 object-cover object-top group-hover:opacity-75 lg:aspect-auto lg:h-[300px]"
+    />
+    <div class="mt-4 flex justify-between gap-2">
+      <div>
+        <h3 class="text-sm text-gray-700 font-semibold line-clamp-2 min-h-11">
+          <a>
+            <span aria-hidden="true" class="absolute inset-0"></span>
+            {{ book.book_name }}
+          </a>
+        </h3>
+      </div>
+      <p class="text-sm font-semibold text-gray-900">{{ book.price }}</p>
     </div>
-    <p class="text-sm font-semibold text-gray-900">{{ book.price }}</p>
   </div>
+
+  @if(!displayInHomePage){
+  <div class="flex justify-between items-center mt-2">
+    <button
+      class="text-sm px-3 py-[6px] bg-gray-200 text-gray-800 rounded-md cursor-pointer"
+      (click)="addToWishlist()"
+    >
+      Add To Wish List
+    </button>
+    <button
+      class="text-sm px-3 py-[6px] bg-slate-700 text-white rounded-md cursor-pointer"
+      (click)="addToCart()"
+    >
+      Add To Cart
+    </button>
+  </div>
+  }
 </div>

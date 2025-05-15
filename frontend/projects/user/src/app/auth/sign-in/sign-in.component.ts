@@ -62,6 +62,8 @@ export class SignInComponent {
         },
 
         error: (err) => {
+          console.log(err.error);
+
           if (err.status === 0) {
             this.errorMessage = 'Unable to connect to the server.';
           } else if (err.status === 401) {
