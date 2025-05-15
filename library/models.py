@@ -113,10 +113,10 @@ class Order(models.Model):
     shipping_address = models.TextField()
     created_at =  models.DateTimeField(default=timezone.now)
 
-    def update_total_price(self):
-        total = sum(transaction.book.price for transaction in self.transactions.all())
-        self.total_price = total
-        self.save()
+    # def update_total_price(self):
+    #     total = sum(transaction.book.price for transaction in self.transactions.all())
+    #     self.total_price = total
+    #     self.save()
 
     def __str__(self):
         return f"Order #{self.order_id}"
@@ -126,7 +126,7 @@ class Order(models.Model):
 
 
 class Transaction(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="transactions")
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="transactions", null=True, blank=True)
     user = models.ForeignKey(User,  on_delete=models.CASCADE, related_name="transactions")
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="transactions")
     quantity = models.PositiveIntegerField(default=1)
@@ -165,15 +165,15 @@ class Payment(models.Model):
     
 
 
-# Signal to update total_price when a transaction is added or modified
-@receiver(post_save, sender=Transaction)
-def update_order_total_price_on_save(sender, instance, **kwargs):
-    instance.order.update_total_price()
+# # Signal to update total_price when a transaction is added or modified
+# @receiver(post_save, sender=Transaction)
+# def update_order_total_price_on_save(sender, instance, **kwargs):
+#     instance.order.update_total_price()
 
-# Signal to update total_price when a transaction is deleted
-@receiver(post_delete, sender=Transaction)
-def update_order_total_price_on_delete(sender, instance, **kwargs):
-    instance.order.update_total_price()
+# # Signal to update total_price when a transaction is deleted
+# @receiver(post_delete, sender=Transaction)
+# def update_order_total_price_on_delete(sender, instance, **kwargs):
+#     instance.order.update_total_price()
 
 
 
