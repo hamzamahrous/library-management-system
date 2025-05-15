@@ -52,7 +52,7 @@ ng serve user
 Or run on a specific port (e.g., 4200):
 
 ```bash
-ng serve --port 4200
+ng serve user --port 4200
 ```
 
 ---
