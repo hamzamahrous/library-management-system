@@ -141,23 +141,23 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class TransactionSerializer(serializers.ModelSerializer):
-    book_price = serializers.ReadOnlyField(source='book.price', default='Not Specified')
-    book_name = serializers.ReadOnlyField(source='book.book_name', default = 'Not Specified')
-    user = serializers.ReadOnlyField(source='user.username')
+    # book_price = serializers.ReadOnlyField(source='book.price', default='Not Specified')
+    # book_name = serializers.ReadOnlyField(source='book.book_name', default = 'Not Specified')
+    # user = serializers.ReadOnlyField(source='user.username')
 
     class Meta:
         model = Transaction
-        fields = ['book', 'book_name', 'book_price', 'user', 'quantity']
-        extra_kwargs = {
-            'user' : {'read_only' : True}
-        }
+        fields = ['book', 'quantity']
+        # extra_kwargs = {
+        #     'user' : {'read_only' : True}
+        # }
         
 
-    def get_book_price(self, obj):
-        return obj.book.price if obj.book else None
+    # def get_book_price(self, obj):
+    #     return obj.book.price if obj.book else None
     
-    def get_order(self, obj):
-        return obj.order if obj.order.user == self.user else None
+    # def get_order(self, obj):
+    #     return obj.order if obj.order.user == self.user else None
     
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user

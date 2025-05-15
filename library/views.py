@@ -101,7 +101,7 @@ class LoginUserView(views.APIView):
                 pass
 
         try:
-            user = authenticate(email=email, password=password)
+            user = authenticate(username=user.username, password=password)
         except:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
