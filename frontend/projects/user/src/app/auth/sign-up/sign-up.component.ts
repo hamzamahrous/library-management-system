@@ -116,8 +116,8 @@ export class SignUpComponent {
     }
 
     const credentials = {
-      firstName: this.form.get('firstName')?.value || '',
-      lastName: this.form.get('lastName')?.value || '',
+      first_name: this.form.get('firstName')?.value || '',
+      last_name: this.form.get('lastName')?.value || '',
       username: this.form.get('userName')?.value || '',
       email: this.form.get('email')?.value || '',
       password: this.form.get('password')?.value || '',

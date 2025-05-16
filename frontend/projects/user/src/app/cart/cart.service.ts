@@ -3,8 +3,8 @@ import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, tap } from 'rxjs';
 
 export interface CartItem {
-  id: number;
-  book_id: number;
+  transaction_id: number;
+  book: number;
   quantity: number;
 }
 
@@ -20,9 +20,11 @@ export class CartService {
   }
 
   loadCart() {
-    this.http
-      .get<CartItem[]>('api/transactions')
-      .pipe(tap((items) => this.cart$.next(items)));
+    return this.http.get<CartItem[]>('api/transactions').pipe(
+      tap((items) => {
+        this.cart$.next(items);
+      })
+    );
   }
 
   addToCart(bookId: number, quantity: number = 1) {
@@ -36,11 +38,53 @@ export class CartService {
       );
   }
 
+  increaseQuantity(bookId: number, cartItemId: number): void {
+    const currentItem = this.cart$.value.find(
+      (item) => item.transaction_id === cartItemId
+    );
+
+    if (currentItem) {
+      const newQuantity = currentItem.quantity + 1;
+
+      this.http
+        .patch<CartItem>(`api/transactions/${cartItemId}/`, {
+          quantity: newQuantity,
+        })
+        .subscribe((updatedItem) => {
+          const updatedCart = this.cart$.value.map((item) =>
+            item.transaction_id === cartItemId ? updatedItem : item
+          );
+          this.cart$.next(updatedCart);
+        });
+    }
+  }
+
+  decreaseQuantity(bookId: number, cartItemId: number): void {
+    const currentItem = this.cart$.value.find(
+      (item) => item.transaction_id === cartItemId
+    );
+
+    if (currentItem && currentItem.quantity > 1) {
+      const newQuantity = currentItem.quantity - 1;
+
+      this.http
+        .patch<CartItem>(`api/transactions/${cartItemId}/`, {
+          quantity: newQuantity,
+        })
+        .subscribe((updatedItem) => {
+          const updatedCart = this.cart$.value.map((item) =>
+            item.transaction_id === cartItemId ? updatedItem : item
+          );
+          this.cart$.next(updatedCart);
+        });
+    }
+  }
+
   removeFromCart(cartItemId: number) {
-    return this.http.delete(`api/transaction/${cartItemId}`).pipe(
+    return this.http.delete(`api/transactions/${cartItemId}/`).pipe(
       tap(() => {
         const updatedCart = this.cart$.value.filter(
-          (item) => item.id !== cartItemId
+          (item) => item.transaction_id !== cartItemId
         );
 
         this.cart$.next(updatedCart);

@@ -1,115 +1,108 @@
+@if (!book) {
+<div class="animate-pulse flex gap-6 py-6">
+  <div class="w-24 h-24 bg-gray-200 rounded-xl"></div>
+  <div class="flex-1 space-y-4">
+    <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+    <div class="h-3 bg-gray-200 rounded w-1/3"></div>
+  </div>
+</div>
+} @if (book) {
 <div
-  class="flex flex-col min-[500px]:flex-row min-[500px]:items-center gap-5 py-6 border-b border-gray-200 group"
+  class="flex flex-col sm:flex-row sm:items-center gap-4 py-6 border-b border-gray-200 group"
 >
-  <div class="w-full md:max-w-[126px]">
+  <!-- Book Image -->
+  <div class="w-24 h-24 shrink-0 mx-auto sm:mx-0">
     <img
       [src]="book.cover_image"
       alt="book cover image"
-      class="mx-auto rounded-xl object-cover"
+      class="rounded-xl object-cover w-full h-full"
     />
   </div>
-  <div class="grid grid-cols-1 md:grid-cols-4 w-full">
-    <div class="md:col-span-2">
-      <div class="flex flex-col max-[500px]:items-center gap-3">
-        <h6 class="font-semibold text-base leading-7 text-black">
+
+  <!-- Book Info + Actions -->
+  <div class="flex flex-col gap-4 flex-1 w-full">
+    <!-- Book Name and Author -->
+    <div class="sm:flex sm:justify-between sm:items-center">
+      <div>
+        <h6 class="font-semibold text-sm text-center sm:text-left text-black">
           {{ book.book_name }}
         </h6>
-        <h6 class="font-normal text-base leading-7 text-gray-500">
+        <p class="text-xs text-gray-500 text-center sm:text-left">
           {{ book.author_name }}
-        </h6>
-        <h6
-          class="font-medium text-base leading-7 text-gray-600 transition-all duration-300 group-hover:text-indigo-600"
-        >
-          ${{ book.price }}
-        </h6>
+        </p>
       </div>
+      <!-- Price -->
+      <p
+        class="font-medium text-sm text-gray-600 sm:text-right text-center mt-2 sm:mt-0 group-hover:text-indigo-600"
+      >
+        ${{ book.price }}
+      </p>
     </div>
+
+    <!-- Quantity Controls and Total -->
     <div
-      class="flex items-center max-[500px]:justify-center h-full max-md:mt-3"
+      class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
     >
-      <div class="flex items-center h-full">
+      <!-- Quantity Buttons -->
+      <div class="flex items-center justify-center sm:justify-start">
         <button
-          class="group rounded-l-xl px-5 py-[18px] border border-gray-200 flex items-center justify-center shadow-sm shadow-transparent transition-all duration-500 hover:bg-gray-50 hover:border-gray-300 hover:shadow-gray-300 focus-within:outline-gray-300"
+          class="group rounded-l-lg px-4 py-2 border border-gray-300 hover:bg-gray-100 transition disabled:opacity-50 disabled:hover:bg-white"
+          (click)="decreaseQuantity()"
+          [disabled]="quantity === 1"
         >
           <svg
-            class="stroke-gray-900 transition-all duration-500 group-hover:stroke-black"
+            class="stroke-gray-900 group-hover:stroke-black"
             xmlns="http://www.w3.org/2000/svg"
-            width="22"
-            height="22"
+            width="14"
+            height="14"
             viewBox="0 0 22 22"
             fill="none"
           >
-            <path
-              d="M16.5 11H5.5"
-              stroke=""
-              stroke-width="1.6"
-              stroke-linecap="round"
-            />
-            <path
-              d="M16.5 11H5.5"
-              stroke=""
-              stroke-opacity="0.2"
-              stroke-width="1.6"
-              stroke-linecap="round"
-            />
-            <path
-              d="M16.5 11H5.5"
-              stroke=""
-              stroke-opacity="0.2"
-              stroke-width="1.6"
-              stroke-linecap="round"
-            />
+            <path d="M16.5 11H5.5" stroke-width="1.6" stroke-linecap="round" />
           </svg>
         </button>
         <input
           type="text"
-          class="border-y border-gray-200 outline-none text-gray-900 font-semibold text-lg w-full max-w-[73px] min-w-[60px] placeholder:text-gray-900 py-[15px] text-center bg-transparent"
+          class="border-y border-gray-300 w-14 text-center font-semibold text-gray-800 text-base outline-none py-[3px]"
           [value]="quantity"
           placeholder="1"
         />
         <button
-          class="group rounded-r-xl px-5 py-[18px] border border-gray-200 flex items-center justify-center shadow-sm shadow-transparent transition-all duration-500 hover:bg-gray-50 hover:border-gray-300 hover:shadow-gray-300 focus-within:outline-gray-300"
+          class="group rounded-r-lg px-4 py-2 border border-gray-300 hover:bg-gray-100 transition"
+          (click)="increaseQuantity()"
         >
           <svg
-            class="stroke-gray-900 transition-all duration-500 group-hover:stroke-black"
+            class="stroke-gray-900 group-hover:stroke-black"
             xmlns="http://www.w3.org/2000/svg"
-            width="22"
-            height="22"
+            width="14"
+            height="14"
             viewBox="0 0 22 22"
             fill="none"
           >
             <path
               d="M11 5.5V16.5M16.5 11H5.5"
-              stroke=""
-              stroke-width="1.6"
-              stroke-linecap="round"
-            />
-            <path
-              d="M11 5.5V16.5M16.5 11H5.5"
-              stroke=""
-              stroke-opacity="0.2"
-              stroke-width="1.6"
-              stroke-linecap="round"
-            />
-            <path
-              d="M11 5.5V16.5M16.5 11H5.5"
-              stroke=""
-              stroke-opacity="0.2"
               stroke-width="1.6"
               stroke-linecap="round"
             />
           </svg>
         </button>
       </div>
-    </div>
-    <div
-      class="flex items-center max-[500px]:justify-center md:justify-end max-md:mt-3 h-full"
-    >
-      <p
-        class="font-bold text-lg leading-8 text-gray-600 text-center transition-all duration-300 group-hover:text-indigo-600"
+
+      <!-- Total Price -->
+      <div class="text-center sm:text-right">
+        <p class="font-bold text-lg text-gray-700 group-hover:text-slate-900">
+          ${{ (quantity * +book.price).toFixed(2) }}
+        </p>
+      </div>
+
+      <!-- Trash Icon -->
+      <div
+        class="flex justify-center sm:justify-end text-slate-500 hover:text-red-500 cursor-pointer"
+        (click)="deleteItem()"
       >
-        ${{ quantity * +book.price }}
-      </p>
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </div>
     </div>
   </div>
 </div>
+}

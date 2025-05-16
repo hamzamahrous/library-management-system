@@ -6,6 +6,10 @@
   </div>
 
   @for (bookData of trendingBooks; track bookData.book_id) {
-  <app-book [book]="bookData" [displayInHomePage]="true"></app-book>
+  <app-book
+    [book]="bookData"
+    [displayInHomePage]="true"
+    [inCart]="false"
+  ></app-book>
   }
 </div>

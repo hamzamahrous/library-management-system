@@ -2,7 +2,8 @@ import { Component, inject, Input, OnInit } from '@angular/core';
 import { Book } from '../book-type';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
-import { CartService } from '../../cart/cart.service';
+import { CartItem, CartService } from '../../cart/cart.service';
+import { WishListServiceService } from '../../wish-list/wish-list-service.service';
 
 @Component({
   selector: 'app-book',
@@ -14,9 +15,13 @@ import { CartService } from '../../cart/cart.service';
 export class BookComponent implements OnInit {
   private authService = inject(AuthService);
   private cartService = inject(CartService);
+  private WishListService = inject(WishListServiceService);
   isLoggedIn: boolean = false;
+
   @Input({ required: true }) book!: Book;
   @Input({ required: true }) displayInHomePage!: boolean;
+  @Input({ required: true }) inCart!: boolean;
+  @Input({ required: true }) inWishList!: boolean;
 
   constructor(private router: Router) {}
 
@@ -50,7 +55,15 @@ export class BookComponent implements OnInit {
 
   addToWishlist() {
     if (this.isLoggedIn) {
-      // Some Logic
+      this.WishListService.addToWishList(this.book.book_id).subscribe({
+        next: (res) => {
+          console.log(res);
+        },
+
+        error: (err) => {
+          console.log(err.error);
+        },
+      });
     } else {
       this.router.navigate(['sign-in']);
     }

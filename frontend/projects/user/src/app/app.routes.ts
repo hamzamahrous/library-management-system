@@ -1,14 +1,11 @@
 import { Routes } from '@angular/router';
-import { SignInComponent } from './auth/sign-in/sign-in.component';
-import { SignUpComponent } from './auth/sign-up/sign-up.component';
 import { HomeComponent } from './home/home.component';
 import { BookDetailsComponent } from './books/book-details/book-details.component';
 import { MainLayoutComponent } from './main-layout/main-layout.component';
-import { AllBooksComponent } from './books/all-books/all-books.component';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
 import { CartComponent } from './cart/cart.component';
-import { WhishListComponent } from './whish-list/whish-list.component';
+import { WishListComponent } from './wish-list/wish-list.component';
 
 export const routes: Routes = [
   {
@@ -29,11 +26,15 @@ export const routes: Routes = [
       },
       {
         path: 'whish-list',
-        component: WhishListComponent,
+        component: WishListComponent,
       },
       {
         path: 'books',
-        component: AllBooksComponent,
+        loadComponent: () => {
+          return import('./books/all-books/all-books.component').then(
+            (mod) => mod.AllBooksComponent
+          );
+        },
       },
       {
         path: 'details/:bookId',
@@ -43,11 +44,19 @@ export const routes: Routes = [
   },
   {
     path: 'sign-in',
-    component: SignInComponent,
+    loadComponent: () => {
+      return import('./auth/sign-in/sign-in.component').then(
+        (mod) => mod.SignInComponent
+      );
+    },
   },
   {
     path: 'sign-up',
-    component: SignUpComponent,
+    loadComponent: () => {
+      return import('./auth/sign-up/sign-up.component').then(
+        (mod) => mod.SignUpComponent
+      );
+    },
   },
   {
     path: 'forgot-password',

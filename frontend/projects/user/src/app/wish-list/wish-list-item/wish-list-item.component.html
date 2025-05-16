@@ -1,0 +1,54 @@
+@if (!book) {
+<div class="animate-pulse flex gap-6 py-6">
+  <div class="w-24 h-24 bg-gray-200 rounded-xl"></div>
+  <div class="flex-1 space-y-4">
+    <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+    <div class="h-3 bg-gray-200 rounded w-1/3"></div>
+  </div>
+</div>
+} @if (book) {
+<div
+  class="flex flex-col sm:flex-row items-center gap-6 py-6 border-b border-gray-200 group"
+>
+  <!-- Book Image -->
+  <div class="w-24 h-24 shrink-0">
+    <img
+      [src]="book.cover_image"
+      alt="book cover image"
+      class="rounded-xl object-cover w-full h-full"
+    />
+  </div>
+
+  <!-- Book Info and Actions -->
+  <div class="flex flex-col gap-4 flex-1 w-full">
+    <!-- Name, Author, and Price -->
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+      <div class="text-center sm:text-left flex flex-col">
+        <h6 class="text-sm font-semibold text-black">
+          {{ book.book_name }}
+        </h6>
+        <p class="text-xs text-gray-500 mt-1">
+          {{ book.author_name }}
+        </p>
+      </div>
+
+      <p
+        class="text-sm font-medium text-gray-600 text-center sm:text-right mt-2 sm:mt-0 group-hover:text-indigo-600"
+      >
+        ${{ book.price }}
+      </p>
+    </div>
+
+    <!-- Delete Button -->
+    <div class="flex justify-center sm:justify-end">
+      <button
+        class="text-slate-800 hover:text-red-500 transition-colors border border-gray-200 bg-gray-100 rounded-md px-3 py-1"
+        (click)="deleteItem()"
+        aria-label="Remove item"
+      >
+        Remove From Wish List
+      </button>
+    </div>
+  </div>
+</div>
+}
