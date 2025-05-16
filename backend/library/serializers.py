@@ -36,10 +36,11 @@ class UserSerializer(serializers.ModelSerializer):
 class UserListSerializer(serializers.ModelSerializer):
     transactions = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     orders = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    wishlist_items = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'transactions', 'orders', 'first_name', 'last_name']  # Excluding password
+        fields = ['id', 'username', 'email', 'transactions', 'orders', 'first_name', 'last_name', 'wishlist_items']  # Excluding password
     
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
@@ -75,11 +76,11 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class WishlistSerializer(serializers.ModelSerializer):
-    user = serializers.ReadOnlyField(source='user.username')
+    # user = serializers.ReadOnlyField(source='user.username')
 
     class Meta:
         model = Wishlist
-        fields = '__all__'
+        fields = ['wishlist_id', 'book']
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
@@ -147,7 +148,7 @@ class TransactionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Transaction
-        fields = ['book', 'quantity']
+        fields = ['transaction_id', 'order', 'book', 'quantity']
         # extra_kwargs = {
         #     'user' : {'read_only' : True}
         # }

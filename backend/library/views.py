@@ -5,7 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import status, generics, views, permissions, filters
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 
@@ -106,8 +106,27 @@ class LoginUserView(views.APIView):
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
         if user:
+            transactions = Transaction.objects.filter(user=user.id)
+            orders = Order.objects.filter(user=user.id)
+            wishlist = Wishlist.objects.filter(user=user.id)
+
+            transactions_data = TransactionSerializer(transactions, many=True).data
+            orders_data = OrderSerializer(orders, many=True).data
+            wishlist_data = WishlistSerializer(wishlist, many=True).data
+
             token, _ = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key}, status=status.HTTP_200_OK)
+            return Response({'token': token.key,
+                            'user': {
+                                'id': user.id,
+                                'username': user.username,
+                                'email': user.email,
+                                'first_name': user.first_name,
+                                'last_name': user.last_name
+                            },
+                            'transactions': transactions_data,
+                            'orders': orders_data,
+                            'wishlist': wishlist_data
+                        },status=status.HTTP_200_OK)
 
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 login_user = LoginUserView.as_view()
@@ -291,8 +310,7 @@ book_detail = BookDetail.as_view()
 class WishlistList(generics.ListCreateAPIView):
     queryset = Wishlist.objects.all()
     serializer_class = WishlistSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                        IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
 
     def perform_create(self, serializer):
@@ -320,8 +338,7 @@ wishlist_list = WishlistList.as_view()
 class WishlistDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Wishlist.objects.all()
     serializer_class = WishlistSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                        IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated]
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -453,6 +470,18 @@ class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+    @action(detail=True, methods=['POST']) # 
+    def success_payment(self, request, pk):
+        order = self.get_object()
+        order.order_status = StatusChoices.CONFIRMED
+        order.save()
+        serializer = OrderSerializer(order)
+        data = {
+            'msg': "Payment Is Successful",
+            'data': serializer.data
+        }
+        return Response(data)
+
 order_detail = OrderDetail.as_view()
 
 
@@ -565,58 +594,63 @@ def payment_detail(request, pk):
 
 # ------------------------------- Payment ---------------------------------------------
 
-# stripe.api_key = settings.STRIPE_SECRET_KEY
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
-# class CreateCheckoutSessionView(views.APIView):
-#     permission_classes = [IsAuthenticated]
+class CreateCheckoutSessionView(views.APIView):
+    permission_classes = [IsAuthenticated]
 
-#     def post(self, request, order_id):
-#         try:
-#             order = Order.objects.get(id=order_id, user=request.user, is_paid=False)
-#             line_items = []
+    def post(self, request, order_id):
+        try:
+            order = Order.objects.get(order_id=order_id, user=request.user)
+            line_items = []
 
-#             for item in order.items.all():
-#                 line_items.append({
-#                     'price_data': {
-#                         'currency': 'usd',
-#                         'product_data': {
-#                             'name': item.book.book_name,
-#                         },
-#                         'unit_amount': int(item.book.price * 100),  # stripe expects amount to be in the smallest currency (cent).
-#                     },
-#                     'quantity': item.quantity,
-#                 })
+            for item in order.transactions.all():
+                line_items.append({
+                    'price_data': {
+                        'currency': 'usd',
+                        'product_data': {
+                            'name': item.book.book_name,
+                        },
+                        'unit_amount': int(item.book.price * 100),  # stripe expects amount to be in the smallest currency (cent).
+                    },
+                    'quantity': item.quantity,
+                })
 
-#             session = stripe.checkout.Session.create(
-#                 payment_method_types=['card'],
-#                 line_items=line_items,
-#                 mode='payment',
-#                 success_url=settings.FRONTEND_URL + '/payment-success?session_id={CHECKOUT_SESSION_ID}',
-#                 cancel_url=settings.FRONTEND_URL + '/payment-cancelled',
-#                 metadata={'order_id': order.id}
-#             )
+            # Check line_items is not empty
+            if not line_items:
+                return Response({"error": "No items found in order."}, status=400)
 
-#             return Response({'sessionUrl': session.url})
-#         except Order.DoesNotExist:
-#             return Response({'error': 'Order not found or already paid'}, status=404)
+            session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=line_items,
+                mode='payment',
+                # success_url=settings.FRONTEND_URL + '/payment-success?session_id={CHECKOUT_SESSION_ID}',
+                success_url = f'http://127.0.0.1:8000/api/pay/{order.order_id}/success_payment/',
+                cancel_url=settings.FRONTEND_URL + '/payment-cancelled',
+                metadata={'order_id': order.order_id}
+            )
 
-# @csrf_exempt
-# def stripe_webhook(request):
-#     payload = request.body
-#     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
-#     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
+            return Response({'sessionUrl': session.url})
+        except Order.DoesNotExist:
+            return Response({'error': 'Order not found or already paid'}, status=404)
 
-#     try:
-#         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
-#     except stripe.error.SignatureVerificationError:
-#         return Response(status=400)
+@csrf_exempt
+def stripe_webhook(request):
+    payload = request.body
+    sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+    endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 
-#     if event['type'] == 'checkout.session.completed':
-#         session = event['data']['object']
-#         order_id = session['metadata']['order_id']
-#         Order.objects.filter(id=order_id).update(is_paid=True)
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+    except stripe.error.SignatureVerificationError:
+        return Response(status=400)
 
-#     return Response(status=200)
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        order_id = session['metadata']['order_id']
+        Order.objects.filter(id=order_id).update(is_paid=True)
+
+    return Response(status=200)
 
 # -------------------------------------------------------------------------------------
 
