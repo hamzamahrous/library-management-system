@@ -126,6 +126,7 @@ class Order(models.Model):
 
 
 class Transaction(models.Model):
+    transaction_id = models.AutoField(primary_key=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="transactions", null=True, blank=True)
     user = models.ForeignKey(User,  on_delete=models.CASCADE, related_name="transactions")
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="transactions")
