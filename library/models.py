@@ -126,6 +126,7 @@ class Order(models.Model):
 
 
 class Transaction(models.Model):
+    transaction_id = models.AutoField(primary_key=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="transactions", null=True, blank=True)
     user = models.ForeignKey(User,  on_delete=models.CASCADE, related_name="transactions")
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="transactions")
@@ -138,6 +139,13 @@ class Transaction(models.Model):
     def __str__(self):
         return f"Transaction: {self.user.username} bought {self.quantity} {self.book.book_name}"
 
+
+class Payment(models.Model):
+    class PaymentMethod(models.TextChoices):
+        CREDIT_CARD = 'Credit Card'
+        PAYPAL = 'PayPal'
+        BANK_TRANSFER = 'Bank Transfer'
+        CASH_ON_DELIVERY = 'Cash on Delivery'
 
 # payments/models.py
 class Payment(models.Model):
