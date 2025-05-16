@@ -310,8 +310,7 @@ book_detail = BookDetail.as_view()
 class WishlistList(generics.ListCreateAPIView):
     queryset = Wishlist.objects.all()
     serializer_class = WishlistSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                        IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
 
     def perform_create(self, serializer):
