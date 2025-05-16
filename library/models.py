@@ -126,6 +126,7 @@ class Order(models.Model):
 
 
 class Transaction(models.Model):
+    transaction_id = models.AutoField(primary_key=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="transactions", null=True, blank=True)
     user = models.ForeignKey(User,  on_delete=models.CASCADE, related_name="transactions")
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="transactions")
@@ -146,19 +147,27 @@ class Payment(models.Model):
         BANK_TRANSFER = 'Bank Transfer'
         CASH_ON_DELIVERY = 'Cash on Delivery'
 
-    class PaymentStatus(models.TextChoices):
-        PENDING = 'Pending'
-        CONFIRMED = 'Confirmed'
-        FAILED = 'Failed'
+# payments/models.py
+class Payment(models.Model):
+    class PaymentMethod(models.TextChoices):
+        CREDIT_CARD = 'Credit Card', 'Credit Card'
+        PAYPAL = 'PayPal', 'PayPal'
+        BANK_TRANSFER = 'Bank Transfer', 'Bank Transfer'
+        CASH_ON_DELIVERY = 'Cash on Delivery', 'Cash on Delivery'
 
-    # payment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    class PaymentStatus(models.TextChoices):
+        PENDING = 'Pending', 'Pending'
+        CONFIRMED = 'Confirmed', 'Confirmed'
+        FAILED = 'Failed', 'Failed'
+
     payment_id = models.AutoField(primary_key=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="payments")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="payments")
-    payment_method = models.CharField(max_length=20, choices=PaymentMethod, default=PaymentMethod.CREDIT_CARD)
+    payment_method = models.CharField(max_length=20, choices=PaymentMethod.choices, default=PaymentMethod.CREDIT_CARD)
     amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
-    payment_status = models.CharField(max_length=10, choices=PaymentStatus, default=PaymentStatus.PENDING)
+    payment_status = models.CharField(max_length=10, choices=PaymentStatus.choices, default=PaymentStatus.PENDING)
     payment_time = models.DateTimeField(auto_now_add=True)
+    stripe_payment_id = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return f"{self.payment_method} - {self.amount} - {self.payment_status}"
