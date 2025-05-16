@@ -208,3 +208,6 @@ EMAIL_HOST = 'smtp.gmail.com'  # Replace with your email host for gmail -> 'smtp
 # Users receive emails from this email.
 EMAIL_HOST_USER = config('EMAIL-HOST-USER', default='your_email_username')  # Replace with your email username
 EMAIL_HOST_PASSWORD = config('EMAIL-HOST-PASSWORD', default='your_email_password')  # Replace with your email password
+
+
+STRIPE_SECRET_KEY = 'sk_test_51RPPQuQd75JuuVLAP5q2202Ez5zZOzIUjGm6trOrT90aFOExRUjJGHryrbcudFXwkH164o3j8wovXXbIZ407WFTg00bJcAn8QC'
