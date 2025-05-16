@@ -18,7 +18,7 @@ function loggingInterceptor(
   if (token) {
     const cloned = request.clone({
       setHeaders: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `token ${token}`,
       },
     });
 
