@@ -312,6 +312,8 @@ class WishlistList(generics.ListCreateAPIView):
     serializer_class = WishlistSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        return Wishlist.objects.filter(user=self.request.user.id)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -339,6 +341,7 @@ class WishlistDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Wishlist.objects.all()
     serializer_class = WishlistSerializer
     permission_classes = [IsAuthenticated]
+    
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
