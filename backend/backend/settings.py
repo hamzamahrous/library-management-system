@@ -210,4 +210,4 @@ EMAIL_HOST_USER = config('EMAIL-HOST-USER', default='your_email_username')  # Re
 EMAIL_HOST_PASSWORD = config('EMAIL-HOST-PASSWORD', default='your_email_password')  # Replace with your email password
 
 
-STRIPE_SECRET_KEY = 'sk_test_51ROQ7pLqBR8knekRT3WpNtTO4CK1u5bRvFdvX96uxHAOctepnp7XvDUUAHQubx7K9Hf9TQ42ucClKC93Gsg1q4u3008XfuAgLz'
+STRIPE_SECRET_KEY = 'sk_test_51RPPQuQd75JuuVLAP5q2202Ez5zZOzIUjGm6trOrT90aFOExRUjJGHryrbcudFXwkH164o3j8wovXXbIZ407WFTg00bJcAn8QC'

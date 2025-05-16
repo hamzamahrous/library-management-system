@@ -472,7 +472,7 @@ class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-    @action(detail=True, methods=['POST'])
+    @action(detail=True, methods=['POST']) # 
     def success_payment(self, request, pk):
         order = self.get_object()
         order.order_status = StatusChoices.CONFIRMED
