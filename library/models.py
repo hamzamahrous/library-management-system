@@ -139,6 +139,13 @@ class Transaction(models.Model):
         return f"Transaction: {self.user.username} bought {self.quantity} {self.book.book_name}"
 
 
+class Payment(models.Model):
+    class PaymentMethod(models.TextChoices):
+        CREDIT_CARD = 'Credit Card'
+        PAYPAL = 'PayPal'
+        BANK_TRANSFER = 'Bank Transfer'
+        CASH_ON_DELIVERY = 'Cash on Delivery'
+
 # payments/models.py
 class Payment(models.Model):
     class PaymentMethod(models.TextChoices):
