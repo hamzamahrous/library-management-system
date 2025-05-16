@@ -147,7 +147,7 @@ class TransactionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Transaction
-        fields = ['order', 'book', 'quantity']
+        fields = ['transaction_id', 'order', 'book', 'quantity']
         # extra_kwargs = {
         #     'user' : {'read_only' : True}
         # }
