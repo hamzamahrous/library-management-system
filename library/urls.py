@@ -16,7 +16,7 @@ urlpatterns = [
     path('login/', login_user, name='login'),
     path('logout/', user_logout, name='logout'),
     path('userlist/', user_list, name='user-list'),
-    path('userdetail/<int:pk>', user_detail, name='user-detail'),
+    path('userdetail/<int:pk>/', user_detail, name='user-detail'),
 
     # password change & reset
     path('change_password/', change_password, name='change-password'),
