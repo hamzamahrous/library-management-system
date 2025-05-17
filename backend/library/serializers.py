@@ -20,17 +20,20 @@ class UserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
+        fields = ['username', 'email', 'password', 'first_name', 'last_name']
         extra_kwargs = {'password': {'write_only': True,}}
 
     def create(self, validated_data):
         user = User(
             username=validated_data['username'],
-            email=validated_data['email']
+            email=validated_data['email'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name']
         )
         user.set_password(validated_data['password'])
         user.save()
         return user
+    
     
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -40,11 +43,21 @@ class UserListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'transactions', 'orders', 'first_name', 'last_name', 'wishlist_items']  # Excluding password
+        fields = ['id', 'username', 'email', 'transactions', 'orders', 'first_name', 'last_name', 'wishlist_items', 'password']  # Excluding password
+        extra_kwargs = {'password': {'write_only': True,}}
     
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
+    
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if password:
+            instance.set_password(password)
+        instance.save()
+        return instance
 
 
 
