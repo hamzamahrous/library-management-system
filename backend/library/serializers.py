@@ -34,6 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
     
+    
 
 class UserListSerializer(serializers.ModelSerializer):
     transactions = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
@@ -42,11 +43,21 @@ class UserListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'transactions', 'orders', 'first_name', 'last_name', 'wishlist_items']  # Excluding password
+        fields = ['id', 'username', 'email', 'transactions', 'orders', 'first_name', 'last_name', 'wishlist_items', 'password']  # Excluding password
+        extra_kwargs = {'password': {'write_only': True,}}
     
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
+    
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if password:
+            instance.set_password(password)
+        instance.save()
+        return instance
 
 
 
