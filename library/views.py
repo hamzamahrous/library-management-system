@@ -30,6 +30,7 @@ def info_page(request):
         'logout': request.build_absolute_uri(reverse('logout')),
         'password_reset': request.build_absolute_uri(reverse('change-password')),
         'userlist': request.build_absolute_uri(reverse('user-list')),
+        'userdetail': request.build_absolute_uri(reverse('user-detail')),
         'books': request.build_absolute_uri(reverse('book-list')),
         'one_book': request.build_absolute_uri(reverse('book-detail', kwargs={'pk': 1})),
         'trending_books': request.build_absolute_uri(reverse('book-trending-list')),
@@ -153,6 +154,14 @@ class UserList(generics.ListAPIView):
     queryset = User.objects.prefetch_related('transactions').all()
     serializer_class = UserListSerializer
 user_list = UserList.as_view()
+
+
+class UserDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserListSerializer
+    permission_classes = [IsAuthenticated]
+
+user_detail = UserDetail.as_view()
 
 
 def change_password(request):
