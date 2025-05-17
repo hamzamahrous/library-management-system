@@ -1,55 +1,77 @@
-<section class="container mt-12">
-  <h1 class="text-4xl text-center">User Information Page</h1>
-  <ul class="mt-16 w-full border-t border-gray-200">
-    <li class="p-3 border-b border-gray-200 flex items-center justify-between">
+<section class="container mx-auto max-w-3xl mt-16 px-6">
+  <h1 class="text-4xl font-bold text-center text-gray-800 mb-10">
+    User Information
+  </h1>
+
+  <ul class="bg-white shadow rounded-lg divide-y divide-gray-200">
+    <li
+      class="p-5 flex items-center justify-between hover:bg-gray-50 transition"
+    >
       <div>
-        <span class="px-2 py-3 inline-block text-gray-500">First Name: </span>
-        <span class="">{{ user.first_name }}</span>
+        <p class="text-sm text-gray-500">First Name</p>
+        <p class="text-md lg:text-lg font-medium text-gray-900">
+          {{ user.first_name }}
+        </p>
       </div>
       <button
-        class="text-blue-600 flex justify-center items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-100"
+        class="text-blue-600 hover:text-blue-800 flex items-center gap-2 transition"
       >
-        <i class="fa-solid fa-pencil"></i> Edit
+        <i class="fa-solid fa-pencil"></i> <span>Edit</span>
       </button>
     </li>
-    <li class="p-3 border-b border-gray-200 flex items-center justify-between">
+
+    <li
+      class="p-5 flex items-center justify-between hover:bg-gray-50 transition"
+    >
       <div>
-        <span class="px-2 py-3 inline-block text-gray-500">Last Name: </span>
-        <span class="">{{ user.last_name }}</span>
+        <p class="text-sm text-gray-500">Last Name</p>
+        <p class="text-md lg:text-lg font-medium text-gray-900">
+          {{ user.last_name }}
+        </p>
       </div>
       <button
-        class="text-blue-600 flex justify-center items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-100"
+        class="text-blue-600 hover:text-blue-800 flex items-center gap-2 transition"
       >
-        <i class="fa-solid fa-pencil"></i> Edit
+        <i class="fa-solid fa-pencil"></i> <span>Edit</span>
       </button>
     </li>
-    <li class="p-3 border-b border-gray-200 flex items-center justify-between">
+
+    <li
+      class="p-5 flex items-center justify-between hover:bg-gray-50 transition"
+    >
       <div>
-        <span class="px-2 py-3 inline-block text-gray-500">User Name: </span>
-        <span class="">{{ user.username }}</span>
+        <p class="text-sm text-gray-500">Username</p>
+        <p class="text-md lg:text-lgfont-medium text-gray-900">
+          {{ user.username }}
+        </p>
       </div>
       <button
-        class="text-blue-600 flex justify-center items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-100"
+        class="text-blue-600 hover:text-blue-800 flex items-center gap-2 transition"
       >
-        <i class="fa-solid fa-pencil"></i> Edit
+        <i class="fa-solid fa-pencil"></i> <span>Edit</span>
       </button>
     </li>
-    <li class="p-3 border-b border-gray-200 flex items-center justify-between">
+
+    <li
+      class="p-5 flex items-center justify-between hover:bg-gray-50 transition"
+    >
       <div>
-        <span class="px-2 py-3 inline-block text-gray-500">Email: </span>
-        <span class="">{{ user.email }}</span>
+        <p class="text-sm text-gray-500">Email</p>
+        <p class="text-md lg:text-lg font-medium text-gray-900">
+          {{ user.email }}
+        </p>
       </div>
       <button
-        class="text-blue-600 flex justify-center items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-100"
+        class="text-blue-600 hover:text-blue-800 flex items-center gap-2 transition"
       >
-        <i class="fa-solid fa-pencil"></i> Edit
+        <i class="fa-solid fa-pencil"></i> <span>Edit</span>
       </button>
     </li>
   </ul>
 
-  <div class="w-full flex justify-center items-center mt-12">
+  <div class="w-full flex justify-center mt-10">
     <button
-      class="px-3 py-2 bg-red-700 text-white rounded-md"
+      class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-md transition"
       (click)="logout()"
     >
       Log Out

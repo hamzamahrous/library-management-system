@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject, map, Observable, tap } from 'rxjs';
 
 export interface CartItem {
   transaction_id: number;
@@ -94,5 +94,11 @@ export class CartService {
 
   clearCart() {
     return this.http.delete(`api/clear`).pipe(tap(() => this.cart$.next([])));
+  }
+
+  isInCart(bookId: number): Observable<boolean> {
+    return this.cart$
+      .asObservable()
+      .pipe(map((items) => items.some((item) => item.book === bookId)));
   }
 }

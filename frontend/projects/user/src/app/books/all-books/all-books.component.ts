@@ -25,17 +25,12 @@ export class AllBooksComponent {
   disableFirstOption = false;
   books: Book[] = [];
   filterBooks: Book[] = [];
-  cartItems: CartItem[] = [];
-  wishListItems: WishList[] = [];
   filteredCategoriesIds: boolean[] = [true, true, true, true, true];
-  cartIdsSet: Set<number> = new Set();
-  wishListIdsSet: Set<number> = new Set();
   maxPrice = 50;
   minRating = 1;
 
   ngOnInit(): void {
-    this.loadCartItems();
-    this.loadWishListItems();
+    this.loadBooks();
   }
 
   loadBooks() {
@@ -43,46 +38,6 @@ export class AllBooksComponent {
       next: (Data) => {
         this.books = Data;
         this.filterBooks = Data;
-      },
-    });
-  }
-
-  loadCartItems() {
-    this.cartService.loadCart().subscribe({
-      next: () => {
-        this.cartService.getCart().subscribe({
-          next: (Data) => {
-            this.cartItems = Data;
-            this.loadBooks();
-
-            for (let item of this.cartItems) {
-              this.cartIdsSet.add(item.book);
-            }
-          },
-
-          error: (err) => {
-            this.loadBooks();
-          },
-        });
-      },
-      error: (err) => {
-        this.loadBooks();
-      },
-    });
-  }
-
-  loadWishListItems() {
-    this.wishListService.loadWishList().subscribe({
-      next: () => {
-        this.wishListService.getWishList().subscribe({
-          next: (Data) => {
-            this.wishListItems = Data;
-
-            for (let item of this.wishListItems) {
-              this.wishListIdsSet.add(item.book);
-            }
-          },
-        });
       },
     });
   }

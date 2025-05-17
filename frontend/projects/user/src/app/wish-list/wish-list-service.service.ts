@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject, map, Observable, tap } from 'rxjs';
 
 export interface WishList {
   wishlist_id: number;
@@ -47,5 +47,11 @@ export class WishListServiceService {
         this.wishList$.next(updatedWishList);
       })
     );
+  }
+
+  isInWishList(bookId: number): Observable<boolean> {
+    return this.wishList$
+      .asObservable()
+      .pipe(map((items) => items.some((item) => item.book === bookId)));
   }
 }

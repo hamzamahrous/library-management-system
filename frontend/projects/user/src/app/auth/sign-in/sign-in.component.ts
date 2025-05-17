@@ -17,6 +17,7 @@ import { AuthService } from '../auth.service';
   styleUrl: './sign-in.component.css',
 })
 export class SignInComponent {
+  showPassword = false;
   errorMessage = '';
   private authService = inject(AuthService);
   router = inject(Router);

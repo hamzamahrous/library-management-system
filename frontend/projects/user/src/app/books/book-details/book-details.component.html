@@ -32,14 +32,39 @@
     </div>
 
     <div class="mt-6 flex gap-4">
-      <button class="bg-slate-950 text-white px-4 py-2 rounded w-1/2">
-        Add to Cart
-      </button>
+      <!-- Cart Button -->
+      @if (!isInCart) {
       <button
-        class="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 w-1/2"
+        class="flex items-center justify-center bg-slate-950 text-white px-4 py-2 rounded-lg w-1/2 hover:bg-slate-800 transition"
+        (click)="addToCart()"
       >
-        Add to Wishlist
+        <i class="fas fa-shopping-cart mr-2"></i> Add to Cart
       </button>
+      } @else {
+      <button
+        class="flex items-center justify-center bg-green-100 text-green-700 px-4 py-2 rounded-lg w-1/2 cursor-default"
+        disabled
+      >
+        <i class="fas fa-check-circle mr-2"></i> In Cart
+      </button>
+      }
+
+      <!-- Wishlist Button -->
+      @if (!isInWishList) {
+      <button
+        class="flex items-center justify-center bg-gray-200 text-gray-800 px-4 py-2 rounded-lg w-1/2 hover:bg-gray-300 transition"
+        (click)="addToWishlist()"
+      >
+        <i class="far fa-heart mr-2"></i> Add to Wishlist
+      </button>
+      } @else {
+      <button
+        class="flex items-center justify-center bg-green-100 text-green-700 px-4 py-2 rounded-lg w-1/2 cursor-default"
+        disabled
+      >
+        <i class="fas fa-heart-circle-check mr-2"></i> In Wish List
+      </button>
+      }
     </div>
   </div>
 </div>

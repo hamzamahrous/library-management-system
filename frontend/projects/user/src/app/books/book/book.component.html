@@ -20,7 +20,7 @@
 
   @if(!displayInHomePage){
   <div class="flex justify-between items-center mt-2">
-    @if(!inWishList || !isLoggedIn){
+    @if(!isInWishList || !isLoggedIn){
     <button
       class="text-sm px-3 py-[6px] bg-gray-200 text-gray-800 rounded-md cursor-pointer"
       (click)="addToWishlist()"
@@ -33,7 +33,7 @@
     >
       In Wish List
     </button>
-    } @if(!inCart || !isLoggedIn){
+    } @if(!isInCart || !isLoggedIn){
     <button
       class="text-sm px-3 py-[6px] bg-slate-700 text-white rounded-md cursor-pointer"
       (click)="addToCart()"

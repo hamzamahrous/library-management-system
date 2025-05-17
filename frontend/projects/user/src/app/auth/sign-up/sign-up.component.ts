@@ -18,6 +18,7 @@ import { Router } from '@angular/router';
   styleUrl: './sign-up.component.css',
 })
 export class SignUpComponent {
+  showPassword = false;
   private authService = inject(AuthService);
   private router = inject(Router);
   errorMessage = '';

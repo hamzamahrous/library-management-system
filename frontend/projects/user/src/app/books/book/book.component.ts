@@ -17,11 +17,11 @@ export class BookComponent implements OnInit {
   private cartService = inject(CartService);
   private WishListService = inject(WishListServiceService);
   isLoggedIn: boolean = false;
+  isInCart: boolean = false;
+  isInWishList: boolean = false;
 
   @Input({ required: true }) book!: Book;
   @Input({ required: true }) displayInHomePage!: boolean;
-  @Input({ required: true }) inCart!: boolean;
-  @Input({ required: true }) inWishList!: boolean;
 
   constructor(private router: Router) {}
 
@@ -29,6 +29,18 @@ export class BookComponent implements OnInit {
     this.authService.isLoggedIn$.subscribe({
       next: (status) => {
         this.isLoggedIn = status;
+
+        if (this.isLoggedIn) {
+          this.cartService.isInCart(this.book.book_id).subscribe((res) => {
+            this.isInCart = res;
+          });
+
+          this.WishListService.isInWishList(this.book.book_id).subscribe(
+            (res) => {
+              this.isInWishList = res;
+            }
+          );
+        }
       },
     });
   }
