@@ -51,4 +51,12 @@ urlpatterns = [
 
     # path('logout/', user_logout, name='logout'),
     # path('logout/', user_logout, name='logout'),
+
+
+
+    
+   
+    path('pay/<int:order_id>/success_payment/', success_payment, name='success_payment'),
+    path('webhook/stripe/', stripe_webhook, name='stripe-webhook'),
+
 ]

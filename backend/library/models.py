@@ -112,7 +112,7 @@ class Order(models.Model):
     order_status = models.CharField(max_length=10, choices=StatusChoices.choices, default=StatusChoices.PENDING)
     shipping_address = models.TextField()
     created_at =  models.DateTimeField(default=timezone.now)
-
+    is_paid = models.BooleanField(default=False)
     # def update_total_price(self):
     #     total = sum(transaction.book.price for transaction in self.transactions.all())
     #     self.total_price = total
@@ -140,12 +140,12 @@ class Transaction(models.Model):
         return f"Transaction: {self.user.username} bought {self.quantity} {self.book.book_name}"
 
 
-class Payment(models.Model):
-    class PaymentMethod(models.TextChoices):
-        CREDIT_CARD = 'Credit Card'
-        PAYPAL = 'PayPal'
-        BANK_TRANSFER = 'Bank Transfer'
-        CASH_ON_DELIVERY = 'Cash on Delivery'
+# class Payment(models.Model):
+#     class PaymentMethod(models.TextChoices):
+#         CREDIT_CARD = 'Credit Card'
+#         PAYPAL = 'PayPal'
+#         BANK_TRANSFER = 'Bank Transfer'
+#         CASH_ON_DELIVERY = 'Cash on Delivery'
 
 # payments/models.py
 class Payment(models.Model):
