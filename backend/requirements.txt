@@ -10,3 +10,7 @@ pyparsing
 pydot
 django-silk
 stripe
+google-genai
+pydantic
+typing
+enum

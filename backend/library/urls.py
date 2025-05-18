@@ -47,6 +47,8 @@ urlpatterns = [
     path('pay/<int:order_id>/', CreateCheckoutSessionView.as_view(), name='pay'),
     path('webhook/stripe/', stripe_webhook, name='stripe-webhook'),
 
+    path('ai-model/', ai_model, name='ai-model'),
+
     # path('logout/', user_logout, name='logout'),
     # path('logout/', user_logout, name='logout'),
 ]
