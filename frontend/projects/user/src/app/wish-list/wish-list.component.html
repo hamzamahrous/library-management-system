@@ -1,0 +1,41 @@
+<section class="container my-12">
+  @if(wishListItems && wishListItems.length > 0){
+  <div class="container mt-12">
+    <h1 class="text-4xl font-semibold text-center text-slate-700 mb-12">
+      Wish List
+    </h1>
+
+    @for (item of wishListItems; track item) {
+    <app-wish-list-item
+      [bookId]="item.book"
+      [itemId]="item.wishlist_id"
+      (itemDeleted)="handleItemDeleted($event)"
+    ></app-wish-list-item>
+    }
+
+    <div class="mt-12 flex flex-col justify-center items-center gap-4">
+      <div class="flex justify-center items-center gap-3">
+        <button
+          class="bg-gray-300 text-gray-700 py-2 rounded-md text-sm md:text-base px-3 md:px-5"
+          routerLink="/books"
+        >
+          Continue Shopping
+        </button>
+      </div>
+    </div>
+  </div>
+  } @else {
+  <div class="text-center mt-52 text-slate-600">
+    <h2 class="text-3xl font-semibold mb-4">Your wish List is empty</h2>
+    <p class="mb-6">
+      Looks like you haven't added anything to your wish list yet.
+    </p>
+    <button
+      class="bg-slate-800 text-white px-5 py-2 rounded-md text-sm md:text-base hover:bg-slate-700"
+      routerLink="/books"
+    >
+      Browse Books
+    </button>
+  </div>
+  }
+</section>

@@ -20,18 +20,33 @@
 
   @if(!displayInHomePage){
   <div class="flex justify-between items-center mt-2">
+    @if(!isInWishList || !isLoggedIn){
     <button
       class="text-sm px-3 py-[6px] bg-gray-200 text-gray-800 rounded-md cursor-pointer"
       (click)="addToWishlist()"
     >
       Add To Wish List
     </button>
+    } @else {
+    <button
+      class="text-sm px-4 py-[6px] bg-green-100 text-green-700 rounded-md cursor-default"
+    >
+      In Wish List
+    </button>
+    } @if(!isInCart || !isLoggedIn){
     <button
       class="text-sm px-3 py-[6px] bg-slate-700 text-white rounded-md cursor-pointer"
       (click)="addToCart()"
     >
       Add To Cart
     </button>
+    } @else {
+    <button
+      class="text-sm px-4 py-[6px] bg-green-100 text-green-700 rounded-md cursor-default"
+    >
+      In Cart
+    </button>
+    }
   </div>
   }
 </div>

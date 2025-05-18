@@ -3,6 +3,11 @@ import { BooksService } from '../services/books.service';
 import { Book } from '../book-type';
 import { BookComponent } from '../book/book.component';
 import { FilterComponent } from '../../../../../shared-lib/src/lib/filter/filter.component';
+import { CartItem, CartService } from '../../cart/cart.service';
+import {
+  WishList,
+  WishListServiceService,
+} from '../../wish-list/wish-list-service.service';
 
 @Component({
   selector: 'app-all-books',
@@ -12,7 +17,11 @@ import { FilterComponent } from '../../../../../shared-lib/src/lib/filter/filter
   styleUrl: './all-books.component.css',
 })
 export class AllBooksComponent {
+  loading = true;
   private booksService = inject(BooksService);
+  private cartService = inject(CartService);
+  private wishListService = inject(WishListServiceService);
+
   showFilter = false;
   disableFirstOption = false;
   books: Book[] = [];
@@ -26,8 +35,10 @@ export class AllBooksComponent {
   }
 
   loadBooks() {
+    this.loading = true;
     this.booksService.getAllBooks().subscribe({
       next: (Data) => {
+        this.loading = false;
         this.books = Data;
         this.filterBooks = Data;
       },

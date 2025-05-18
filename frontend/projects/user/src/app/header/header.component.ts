@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { BooksService } from '../books/services/books.service';
 import { Book } from '../books/book-type';
 import { CurrencyPipe } from '@angular/common';
+import { CartService } from '../cart/cart.service';
+import { WishListServiceService } from '../wish-list/wish-list-service.service';
 
 @Component({
   selector: 'app-header',
@@ -16,12 +18,16 @@ import { CurrencyPipe } from '@angular/common';
 export class HeaderComponent implements OnInit {
   private authService = inject(AuthService);
   private booksService = inject(BooksService);
+  private cartService = inject(CartService);
+  private wishListService = inject(WishListServiceService);
   private router = inject(Router);
   isLoggedIn: boolean = false;
   books: Book[] = [];
   searchedBooks: Book[] = [];
   activeSearchContext: 'desktop' | 'mobile' | null = null;
   clearSearchBarValue = false;
+  cartItemsLength?: number;
+  wishListItemsLength?: number;
 
   ngOnInit(): void {
     this.authService.isLoggedIn$.subscribe({
@@ -33,6 +39,30 @@ export class HeaderComponent implements OnInit {
     this.booksService.getAllBooks().subscribe({
       next: (data) => {
         this.books = data;
+      },
+    });
+
+    this.cartService.loadCart().subscribe({
+      next: () => {
+        this.cartService.getCart().subscribe({
+          next: (cartData) => {
+            this.cartItemsLength = cartData.length;
+          },
+        });
+      },
+
+      error: (err) => {
+        console.error('Failed to load cart items', err);
+      },
+    });
+
+    this.wishListService.loadWishList().subscribe({
+      next: () => {
+        this.wishListService.getWishList().subscribe({
+          next: (wishListData) => {
+            this.wishListItemsLength = wishListData.length;
+          },
+        });
       },
     });
   }

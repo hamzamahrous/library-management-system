@@ -18,6 +18,7 @@ import { Router } from '@angular/router';
   styleUrl: './sign-up.component.css',
 })
 export class SignUpComponent {
+  showPassword = false;
   private authService = inject(AuthService);
   private router = inject(Router);
   errorMessage = '';
@@ -116,14 +117,13 @@ export class SignUpComponent {
     }
 
     const credentials = {
-      firstName: this.form.get('firstName')?.value || '',
-      lastName: this.form.get('lastName')?.value || '',
+      first_name: this.form.get('firstName')?.value || '',
+      last_name: this.form.get('lastName')?.value || '',
       username: this.form.get('userName')?.value || '',
       email: this.form.get('email')?.value || '',
       password: this.form.get('password')?.value || '',
     };
 
-    console.log(credentials);
     this.authService.signup(credentials).subscribe({
       next: (res) => {
         this.errorMessage = '';

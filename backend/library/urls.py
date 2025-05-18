@@ -16,6 +16,7 @@ urlpatterns = [
     path('login/', login_user, name='login'),
     path('logout/', user_logout, name='logout'),
     path('userlist/', user_list, name='user-list'),
+    path('userdetail/<int:pk>/', user_detail, name='user-detail'),
 
     # password change & reset
     path('change_password/', change_password, name='change-password'),
@@ -45,6 +46,8 @@ urlpatterns = [
 
     path('pay/<int:order_id>/', CreateCheckoutSessionView.as_view(), name='pay'),
     path('webhook/stripe/', stripe_webhook, name='stripe-webhook'),
+
+    path('ai-model/', ai_model, name='ai-model'),
 
     # path('logout/', user_logout, name='logout'),
     # path('logout/', user_logout, name='logout'),

@@ -2,7 +2,8 @@ import { Component, inject, Input, OnInit } from '@angular/core';
 import { Book } from '../book-type';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
-import { CartService } from '../../cart/cart.service';
+import { CartItem, CartService } from '../../cart/cart.service';
+import { WishListServiceService } from '../../wish-list/wish-list-service.service';
 
 @Component({
   selector: 'app-book',
@@ -14,7 +15,11 @@ import { CartService } from '../../cart/cart.service';
 export class BookComponent implements OnInit {
   private authService = inject(AuthService);
   private cartService = inject(CartService);
+  private WishListService = inject(WishListServiceService);
   isLoggedIn: boolean = false;
+  isInCart: boolean = false;
+  isInWishList: boolean = false;
+
   @Input({ required: true }) book!: Book;
   @Input({ required: true }) displayInHomePage!: boolean;
 
@@ -24,6 +29,18 @@ export class BookComponent implements OnInit {
     this.authService.isLoggedIn$.subscribe({
       next: (status) => {
         this.isLoggedIn = status;
+
+        if (this.isLoggedIn) {
+          this.cartService.isInCart(this.book.book_id).subscribe((res) => {
+            this.isInCart = res;
+          });
+
+          this.WishListService.isInWishList(this.book.book_id).subscribe(
+            (res) => {
+              this.isInWishList = res;
+            }
+          );
+        }
       },
     });
   }
@@ -35,9 +52,7 @@ export class BookComponent implements OnInit {
   addToCart() {
     if (this.isLoggedIn) {
       this.cartService.addToCart(this.book.book_id, 1).subscribe({
-        next: (res) => {
-          console.log(res);
-        },
+        next: (res) => {},
 
         error: (err) => {
           console.log(err.error);
@@ -50,7 +65,13 @@ export class BookComponent implements OnInit {
 
   addToWishlist() {
     if (this.isLoggedIn) {
-      // Some Logic
+      this.WishListService.addToWishList(this.book.book_id).subscribe({
+        next: (res) => {},
+
+        error: (err) => {
+          console.log(err.error);
+        },
+      });
     } else {
       this.router.navigate(['sign-in']);
     }

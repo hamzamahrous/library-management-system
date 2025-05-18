@@ -44,7 +44,23 @@
     </div>
   </div>
 
-  @if(filterBooks.length > 0){
+  @if(loading){
+  <div
+    class="mt-20 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+  >
+    @for (i of [1, 2, 3, 4]; track i) {
+    <div class="animate-pulse rounded-xl bg-white p-4 shadow">
+      <div class="h-64 bg-gray-200 rounded-md mb-4"></div>
+      <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+      <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+      <div class="mt-4 flex gap-2">
+        <div class="h-8 w-24 bg-gray-200 rounded-md"></div>
+        <div class="h-8 w-24 bg-gray-200 rounded-md"></div>
+      </div>
+    </div>
+    }
+  </div>
+  } @else if(filterBooks.length > 0){
   <div
     class="mb-10 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:gap-x-8"
   >

@@ -1,6 +1,8 @@
 <header class="container py-4 flex flex-wrap justify-between items-center">
   <div class="flex-shrink-0 cursor-pointer" (click)="navigateToHomePage()">
-    <span class="text-slate-800 text-3xl font-bold font-inter">ReadHub</span>
+    <span class="relative text-3xl font-semibold text-slate-800 font-inter">
+      ReadHub
+    </span>
   </div>
 
   <div class="hidden relative sm:block sm:w-auto mt-2 sm:mt-0">
@@ -46,7 +48,7 @@
     <button
       title="Whish List"
       (click)="isLoggedIn ? navigateToWhishList() : navigateToSignIn()"
-      class="w-11 h-11 bg-gray-100 rounded-full flex justify-center items-center"
+      class="w-11 h-11 bg-gray-100 rounded-full flex justify-center items-center relative"
     >
       <span>
         <svg
@@ -67,11 +69,19 @@
           ></path>
         </svg>
       </span>
+
+      @if(isLoggedIn && wishListItemsLength){
+      <span
+        class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full shadow-md"
+      >
+        {{ wishListItemsLength }}
+      </span>
+      }
     </button>
     <button
       title="Bag"
       (click)="isLoggedIn ? navigateToCart() : navigateToSignIn()"
-      class="w-11 h-11 bg-gray-100 rounded-full flex justify-center items-center"
+      class="w-11 h-11 bg-gray-100 rounded-full flex justify-center items-center relative"
     >
       <span>
         <svg
@@ -91,6 +101,14 @@
           ></path>
         </svg>
       </span>
+
+      @if(isLoggedIn && cartItemsLength){
+      <span
+        class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold w-5 h-5 flex items-center justify-center rounded-full shadow-md"
+      >
+        {{ cartItemsLength }}
+      </span>
+      }
     </button>
 
     @if(isLoggedIn){

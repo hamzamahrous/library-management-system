@@ -20,30 +20,44 @@ class UserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
+        fields = ['username', 'email', 'password', 'first_name', 'last_name']
         extra_kwargs = {'password': {'write_only': True,}}
 
     def create(self, validated_data):
         user = User(
             username=validated_data['username'],
-            email=validated_data['email']
+            email=validated_data['email'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name']
         )
         user.set_password(validated_data['password'])
         user.save()
         return user
     
+    
 
 class UserListSerializer(serializers.ModelSerializer):
     transactions = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     orders = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    wishlist_items = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'transactions', 'orders', 'first_name', 'last_name']  # Excluding password
+        fields = ['id', 'username', 'email', 'transactions', 'orders', 'first_name', 'last_name', 'wishlist_items', 'password']  # Excluding password
+        extra_kwargs = {'password': {'write_only': True,}}
     
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
+    
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if password:
+            instance.set_password(password)
+        instance.save()
+        return instance
 
 
 
@@ -75,11 +89,11 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class WishlistSerializer(serializers.ModelSerializer):
-    user = serializers.ReadOnlyField(source='user.username')
+    # user = serializers.ReadOnlyField(source='user.username')
 
     class Meta:
         model = Wishlist
-        fields = '__all__'
+        fields = ['wishlist_id', 'book']
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
@@ -171,4 +185,26 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = '__all__'
+
+
+
+class BookBriefSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = ['book_name', 'brief_abstraction']
+
+class AIModelSerializer(serializers.ModelSerializer):
+    transactions = serializers.SerializerMethodField()
+    wishlist_items = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'transactions', 'wishlist_items']
+
+    def get_transactions(self, obj):
+        return BookBriefSerializer([t.book for t in obj.transactions.all()], many=True).data
+
+    def get_wishlist_items(self, obj):
+        return BookBriefSerializer([w.book for w in obj.wishlist_items.all()], many=True).data
+
 
