@@ -99,7 +99,8 @@ class LoginUserView(views.APIView):
             try:
                 user = User.objects.get(email=email)
             except ObjectDoesNotExist:
-                pass
+                return Response({'error': 'No user found with this email'},
+                                status=status.HTTP_404_NOT_FOUND)
 
         try:
             user = authenticate(username=user.username, password=password)
