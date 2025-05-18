@@ -547,20 +547,26 @@ class TransactionDetail(generics.RetrieveUpdateDestroyAPIView):
 transaction_detail = TransactionDetail.as_view()
 
 
-
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 def payment_list(request):
-    if request.method == 'GET':
-        payments = Payment.objects.all()
-        serializer = PaymentSerializer(payments, many=True)
-        return Response(serializer.data)
+    payments = Payment.objects.all()
+    serializer = PaymentSerializer(payments, many=True)
+    return Response(serializer.data)
 
-    elif request.method == 'POST':
-        serializer = PaymentSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# @api_view(['GET', 'POST'])
+# def payment_list(request):
+#     if request.method == 'GET':
+#         payments = Payment.objects.all()
+#         serializer = PaymentSerializer(payments, many=True)
+#         return Response(serializer.data)
+
+#     elif request.method == 'POST':
+#         serializer = PaymentSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET', 'DELETE', 'PUT'])
@@ -597,6 +603,43 @@ def payment_detail(request, pk):
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
+# class CreateCheckoutSessionView(views.APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def post(self, request, order_id):
+#         try:
+#             order = Order.objects.get(order_id=order_id, user=request.user)
+#             line_items = []
+
+#             for item in order.transactions.all():
+#                 line_items.append({
+#                     'price_data': {
+#                         'currency': 'usd',
+#                         'product_data': {
+#                             'name': item.book.book_name,
+#                         },
+#                         'unit_amount': int(item.book.price * 100),  # stripe expects amount to be in the smallest currency (cent).
+#                     },
+#                     'quantity': item.quantity,
+#                 })
+
+#             # Check line_items is not empty
+#             if not line_items:
+#                 return Response({"error": "No items found in order."}, status=400)
+
+#             session = stripe.checkout.Session.create(
+#                 payment_method_types=['card'],
+#                 line_items=line_items,
+#                 mode='payment',
+#                 # success_url=settings.FRONTEND_URL + '/payment-success?session_id={CHECKOUT_SESSION_ID}',
+#                 success_url = f'http://127.0.0.1:8000/api/pay/{order.order_id}/success_payment/',
+#                 cancel_url=settings.FRONTEND_URL + '/payment-cancelled',
+#                 metadata={'order_id': order.order_id}
+#             )
+
+#             return Response({'sessionUrl': session.url})
+#         except Order.DoesNotExist:
+#             return Response({'error': 'Order not found or already paid'}, status=404)
 class CreateCheckoutSessionView(views.APIView):
     permission_classes = [IsAuthenticated]
 
@@ -604,6 +647,7 @@ class CreateCheckoutSessionView(views.APIView):
         try:
             order = Order.objects.get(order_id=order_id, user=request.user)
             line_items = []
+            total_price = 0
 
             for item in order.transactions.all():
                 line_items.append({
@@ -616,25 +660,38 @@ class CreateCheckoutSessionView(views.APIView):
                     },
                     'quantity': item.quantity,
                 })
+                total_price += item.book.price * item.quantity
 
             # Check line_items is not empty
             if not line_items:
                 return Response({"error": "No items found in order."}, status=400)
 
+            # إنشاء الـ Payment بعد حساب الـ total_price
+            payment = Payment.objects.create(
+                order=order,
+                user=request.user,
+                payment_method=Payment.PaymentMethod.CREDIT_CARD,
+                amount=total_price,
+                payment_status=Payment.PaymentStatus.PENDING,
+            )
+
+            # إنشاء الـ Stripe Session
             session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
                 line_items=line_items,
                 mode='payment',
-                # success_url=settings.FRONTEND_URL + '/payment-success?session_id={CHECKOUT_SESSION_ID}',
-                success_url = f'http://127.0.0.1:8000/api/pay/{order.order_id}/success_payment/',
+                success_url=f'http://127.0.0.1:8000/api/pay/{order.order_id}/success_payment/',
                 cancel_url=settings.FRONTEND_URL + '/payment-cancelled',
                 metadata={'order_id': order.order_id}
             )
 
+            # ربط الـ stripe_payment_id بعد ما الـ session يتولد
+            payment.stripe_payment_id = session.id
+            payment.save()
+
             return Response({'sessionUrl': session.url})
         except Order.DoesNotExist:
             return Response({'error': 'Order not found or already paid'}, status=404)
-
 @csrf_exempt
 def stripe_webhook(request):
     payload = request.body
@@ -649,9 +706,81 @@ def stripe_webhook(request):
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
         order_id = session['metadata']['order_id']
-        Order.objects.filter(id=order_id).update(is_paid=True)
+        try:
+            order = Order.objects.get(order_id=order_id)
+            order.order_status = Order.StatusChoices.CONFIRMED
+            order.is_paid = True
+            order.save()
+
+            # تحديث الـ Payment
+            payment = order.payments.filter(stripe_payment_id=session.id).first()
+            if payment:
+                payment.payment_status = Payment.PaymentStatus.CONFIRMED
+                payment.payment_time = timezone.now()
+                payment.save()
+            else:
+                return Response({'error': 'Payment not found'}, status=404)
+
+            # إضافة Transaction لو مش موجودة (اختياري)
+            payment_intent = session.get('payment_intent')
+            if payment_intent:
+                payment_intent_data = stripe.PaymentIntent.retrieve(payment_intent)
+                for transaction in order.transactions.all():
+                    transaction_obj, created = Transaction.objects.get_or_create(
+                        order=order,
+                        user=order.user,
+                        book=transaction.book,
+                        quantity=transaction.quantity,
+                    )
+                    transaction_obj.save()
+
+        except Order.DoesNotExist:
+            return Response({'error': 'Order not found'}, status=404)
 
     return Response(status=200)
+
+@api_view(['GET'])
+def success_payment(request, order_id):
+    try:
+        order = Order.objects.get(order_id=order_id)
+    except Order.DoesNotExist:
+        return Response({'error': 'Order not found'}, status=404)
+
+    # تحديث حالة الـ Order
+    order.order_status = Order.StatusChoices.CONFIRMED
+    order.is_paid = True
+    order.save()
+
+    # تحديث حالة الـ Payment لـ "Confirmed"
+    payment = order.payments.first()
+    if payment:
+        payment.payment_status = Payment.PaymentStatus.CONFIRMED
+        payment.payment_time = timezone.now()
+        payment.save()
+    else:
+        return Response({'error': 'No payment found for this order'}, status=400)
+
+    transactions = order.transactions.all()
+    if not transactions.exists():
+        return Response({'error': 'No items found in order'}, status=400)
+
+    for transaction in transactions:
+        book = transaction.book
+        quantity = transaction.quantity
+
+        if book.stock_quantity < quantity:
+            return Response(
+                {'error': f'Not enough stock for book {book.book_name}'},
+                status=400
+            )
+
+        book.stock_quantity -= quantity
+        book.num_of_sells += quantity
+        book.save()
+
+    return Response({'message': 'Payment successful, stock updated'}, status=200)
+
+
 
 # -------------------------------------------------------------------------------------
 
