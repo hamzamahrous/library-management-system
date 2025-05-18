@@ -52,9 +52,7 @@ export class BookComponent implements OnInit {
   addToCart() {
     if (this.isLoggedIn) {
       this.cartService.addToCart(this.book.book_id, 1).subscribe({
-        next: (res) => {
-          console.log(res);
-        },
+        next: (res) => {},
 
         error: (err) => {
           console.log(err.error);
@@ -68,9 +66,7 @@ export class BookComponent implements OnInit {
   addToWishlist() {
     if (this.isLoggedIn) {
       this.WishListService.addToWishList(this.book.book_id).subscribe({
-        next: (res) => {
-          console.log(res);
-        },
+        next: (res) => {},
 
         error: (err) => {
           console.log(err.error);

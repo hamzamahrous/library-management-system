@@ -17,6 +17,7 @@ import {
   styleUrl: './all-books.component.css',
 })
 export class AllBooksComponent {
+  loading = true;
   private booksService = inject(BooksService);
   private cartService = inject(CartService);
   private wishListService = inject(WishListServiceService);
@@ -34,8 +35,10 @@ export class AllBooksComponent {
   }
 
   loadBooks() {
+    this.loading = true;
     this.booksService.getAllBooks().subscribe({
       next: (Data) => {
+        this.loading = false;
         this.books = Data;
         this.filterBooks = Data;
       },

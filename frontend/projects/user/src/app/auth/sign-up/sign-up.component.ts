@@ -124,7 +124,6 @@ export class SignUpComponent {
       password: this.form.get('password')?.value || '',
     };
 
-    console.log(credentials);
     this.authService.signup(credentials).subscribe({
       next: (res) => {
         this.errorMessage = '';

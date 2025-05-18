@@ -9,15 +9,42 @@
     >
       <div>
         <p class="text-sm text-gray-500">First Name</p>
+        @if (editFirstName) {
+        <input
+          type="text"
+          [(ngModel)]="user.first_name"
+          title="first name"
+          class="mt-2 w-full sm:w-64 border rounded-md px-3 py-2 text-gray-800 shadow-sm focus:outline-none"
+        />
+        } @else {
         <p class="text-md lg:text-lg font-medium text-gray-900">
           {{ user.first_name }}
         </p>
+        }
       </div>
-      <button
-        class="text-blue-600 hover:text-blue-800 flex items-center gap-2 transition"
-      >
-        <i class="fa-solid fa-pencil"></i> <span>Edit</span>
-      </button>
+      <div class="flex justify-center items-center gap-2">
+        @if (editFirstName) {
+        <button
+          class="inline-flex items-center px-4 py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium rounded-lg shadow-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          (click)="saveFirstName()"
+        >
+          Save
+        </button>
+        <button
+          (click)="cancelEditFirstName()"
+          class="inline-flex items-center px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+        >
+          Cancel
+        </button>
+        } @else {
+        <button
+          class="text-slate-700 hover:text-slate-900 flex items-center gap-2 transition"
+          (click)="editFirstName = true"
+        >
+          <i class="fa-solid fa-pencil"></i> <span>Edit</span>
+        </button>
+        }
+      </div>
     </li>
 
     <li
@@ -25,51 +52,210 @@
     >
       <div>
         <p class="text-sm text-gray-500">Last Name</p>
+        @if (editLastName) {
+        <input
+          type="text"
+          [(ngModel)]="user.last_name"
+          title="last Name"
+          class="mt-2 w-full sm:w-64 border rounded-md px-3 py-2 text-gray-800 shadow-sm focus:outline-none"
+        />
+        } @else {
         <p class="text-md lg:text-lg font-medium text-gray-900">
           {{ user.last_name }}
         </p>
+        }
       </div>
-      <button
-        class="text-blue-600 hover:text-blue-800 flex items-center gap-2 transition"
-      >
-        <i class="fa-solid fa-pencil"></i> <span>Edit</span>
-      </button>
+      <div class="flex justify-center items-center gap-2">
+        @if (editLastName) {
+        <button
+          class="inline-flex items-center px-4 py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium rounded-lg shadow-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          (click)="saveLastName()"
+        >
+          Save
+        </button>
+        <button
+          (click)="cancelEditLastName()"
+          class="inline-flex items-center px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+        >
+          Cancel
+        </button>
+        } @else {
+        <button
+          class="text-slate-700 hover:text-slate-900 flex items-center gap-2 transition"
+          (click)="editLastName = true"
+        >
+          <i class="fa-solid fa-pencil"></i> <span>Edit</span>
+        </button>
+        }
+      </div>
     </li>
 
-    <li
-      class="p-5 flex items-center justify-between hover:bg-gray-50 transition"
-    >
-      <div>
-        <p class="text-sm text-gray-500">Username</p>
-        <p class="text-md lg:text-lgfont-medium text-gray-900">
-          {{ user.username }}
-        </p>
+    <!-- Username -->
+    <li class="p-5 hover:bg-gray-50 transition">
+      <div class="flex items-center justify-between flex-wrap">
+        <div>
+          <p class="text-sm text-gray-500">Username</p>
+          @if (editUsername) {
+          <input
+            type="text"
+            [(ngModel)]="user.username"
+            title="user name"
+            class="mt-2 w-full sm:w-64 border rounded-md px-3 py-2 text-gray-800 shadow-sm focus:outline-none"
+          />
+          } @else {
+          <p class="text-md lg:text-lg font-medium text-gray-900">
+            {{ user.username }}
+          </p>
+          }
+        </div>
+
+        <div class="flex justify-center items-center gap-2 mt-4 sm:mt-0">
+          @if (editUsername) {
+          <button
+            class="inline-flex items-center px-4 py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium rounded-lg shadow-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            (click)="saveUsername()"
+          >
+            Save
+          </button>
+          <button
+            (click)="cancelEditUsername()"
+            class="inline-flex items-center px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+          >
+            Cancel
+          </button>
+          } @else {
+          <button
+            class="text-slate-700 hover:text-slate-900 flex items-center gap-2 transition"
+            (click)="editUsername = true"
+          >
+            <i class="fa-solid fa-pencil"></i> <span>Edit</span>
+          </button>
+          }
+        </div>
       </div>
-      <button
-        class="text-blue-600 hover:text-blue-800 flex items-center gap-2 transition"
-      >
-        <i class="fa-solid fa-pencil"></i> <span>Edit</span>
-      </button>
+
+      @if (usernameErrorMessage) {
+      <p class="text-red-500 text-sm mt-3 ml-1">
+        {{ usernameErrorMessage }}
+      </p>
+      }
     </li>
 
-    <li
-      class="p-5 flex items-center justify-between hover:bg-gray-50 transition"
-    >
-      <div>
-        <p class="text-sm text-gray-500">Email</p>
-        <p class="text-md lg:text-lg font-medium text-gray-900">
-          {{ user.email }}
-        </p>
+    <li class="p-5 hover:bg-gray-50 transition">
+      <div class="flex items-center justify-between flex-wrap">
+        <div>
+          <p class="text-sm text-gray-500">Email</p>
+          @if (editEmail) {
+          <input
+            type="email"
+            [(ngModel)]="user.email"
+            title="email"
+            class="mt-2 w-full sm:w-64 border rounded-md px-3 py-2 text-gray-800 shadow-sm focus:outline-none"
+          />
+          } @else {
+          <p class="text-md lg:text-lg font-medium text-gray-900">
+            {{ user.email }}
+          </p>
+          }
+        </div>
+
+        <div class="flex justify-center items-center gap-2 mt-4 sm:mt-0">
+          @if (editEmail) {
+          <button
+            class="inline-flex items-center px-4 py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium rounded-lg shadow-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            (click)="saveEmail()"
+          >
+            Save
+          </button>
+          <button
+            (click)="cancelEditEmail()"
+            class="inline-flex items-center px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+          >
+            Cancel
+          </button>
+          } @else {
+          <button
+            class="text-slate-700 hover:text-slate-900 flex items-center gap-2 transition"
+            (click)="editEmail = true"
+          >
+            <i class="fa-solid fa-pencil"></i> <span>Edit</span>
+          </button>
+          }
+        </div>
       </div>
-      <button
-        class="text-blue-600 hover:text-blue-800 flex items-center gap-2 transition"
-      >
-        <i class="fa-solid fa-pencil"></i> <span>Edit</span>
-      </button>
+
+      @if (emailErrorMessage) {
+      <p class="text-red-500 text-sm mt-3 ml-1">
+        {{ emailErrorMessage }}
+      </p>
+      }
     </li>
   </ul>
 
-  <div class="w-full flex justify-center mt-10">
+  <section class="container mx-auto max-w-4xl mt-16 px-4">
+    <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">My Orders</h2>
+
+    @if (orders.length > 0) {
+    <div class="space-y-4">
+      @for (order of orders; track order.order_id) {
+      <div class="bg-white shadow rounded-lg p-6 border border-gray-100">
+        <div
+          class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-y-4 sm:gap-4"
+        >
+          <div
+            class="flex justify-between sm:flex-col sm:justify-start sm:items-start w-full sm:w-auto sm:gap-1"
+          >
+            <p class="text-gray-500 text-sm">Date</p>
+            <p class="text-gray-800 text-sm sm:text-base">
+              {{ order.created_at | date : "mediumDate" }}
+            </p>
+          </div>
+
+          <div
+            class="flex justify-between sm:flex-col sm:justify-start sm:items-start w-full sm:w-auto sm:gap-1"
+          >
+            <p class="text-gray-500 text-sm self-center">Status</p>
+            <span
+              class="text-sm sm:text-xs font-semibold px-3 py-1 rounded-full"
+              [ngClass]="{
+                'bg-yellow-100 text-yellow-800':
+                  order.order_status === 'Pending',
+                'bg-green-100 text-green-800':
+                  order.order_status === 'Delivered',
+                'bg-red-100 text-red-700': order.order_status === 'Canceled'
+              }"
+            >
+              {{ order.order_status }}
+            </span>
+          </div>
+
+          <div
+            class="flex justify-between sm:flex-col sm:justify-start sm:items-start w-full sm:w-auto sm:gap-1"
+          >
+            <p class="text-gray-500 text-sm">Total Price</p>
+            <p class="text-gray-900 font-semibold text-sm sm:text-base">
+              ${{ order.total_price }}
+            </p>
+          </div>
+
+          <div class="text-center sm:gap-1">
+            <p class="text-gray-500 text-sm mb-1">Shipping Address</p>
+            <p class="text-gray-700 text-sm sm:text-base">
+              {{ order.shipping_address }}
+            </p>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+    } @else {
+    <div class="text-center text-gray-400 text-3xl mt-4">
+      You haven’t placed any orders yet.
+    </div>
+    }
+  </section>
+
+  <div class="w-full flex justify-center mt-16 mb-10">
     <button
       class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-md transition"
       (click)="logout()"
