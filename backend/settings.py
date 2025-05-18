@@ -211,3 +211,8 @@ EMAIL_HOST_PASSWORD = config('EMAIL-HOST-PASSWORD', default='your_email_password
 
 
 STRIPE_SECRET_KEY = 'sk_test_51RPPQuQd75JuuVLAP5q2202Ez5zZOzIUjGm6trOrT90aFOExRUjJGHryrbcudFXwkH164o3j8wovXXbIZ407WFTg00bJcAn8QC'
+
+try:
+    GEMINI_API_KEY = config('GEMINI-API-KEY', default='AIzaSyC8g-EHGUFz7OA1YhX50DS8N3jbLM5L_Gw')
+except:
+    print("Please, get you GEMINI API KEY!")
