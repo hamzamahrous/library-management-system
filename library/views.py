@@ -30,6 +30,7 @@ def info_page(request):
         'logout': request.build_absolute_uri(reverse('logout')),
         'password_reset': request.build_absolute_uri(reverse('change-password')),
         'userlist': request.build_absolute_uri(reverse('user-list')),
+        'userdetail': request.build_absolute_uri(reverse('user-detail', kwargs={'pk': 1})),
         'books': request.build_absolute_uri(reverse('book-list')),
         'one_book': request.build_absolute_uri(reverse('book-detail', kwargs={'pk': 1})),
         'trending_books': request.build_absolute_uri(reverse('book-trending-list')),
@@ -45,6 +46,7 @@ def info_page(request):
         'one_payment': request.build_absolute_uri(reverse('payment-detail', kwargs={'pk': 1})),
         'transactions': request.build_absolute_uri(reverse('transaction-list')),
         'one_transaction':request.build_absolute_uri(reverse('transaction-detail', kwargs={'pk': 1})),
+        'ai_model':request.build_absolute_uri(reverse('ai-model')),
     }
 
     return Response(data)
@@ -98,7 +100,8 @@ class LoginUserView(views.APIView):
             try:
                 user = User.objects.get(email=email)
             except ObjectDoesNotExist:
-                pass
+                return Response({'error': 'No user found with this email'},
+                                status=status.HTTP_404_NOT_FOUND)
 
         try:
             user = authenticate(username=user.username, password=password)
@@ -152,7 +155,16 @@ def user_logout(request):
 class UserList(generics.ListAPIView):
     queryset = User.objects.prefetch_related('transactions').all()
     serializer_class = UserListSerializer
+    permission_classes = [IsAuthenticated]
 user_list = UserList.as_view()
+
+
+class UserDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserListSerializer
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+
+user_detail = UserDetail.as_view()
 
 
 def change_password(request):
@@ -312,6 +324,8 @@ class WishlistList(generics.ListCreateAPIView):
     serializer_class = WishlistSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        return Wishlist.objects.filter(user=self.request.user.id)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -338,8 +352,8 @@ wishlist_list = WishlistList.as_view()
 class WishlistDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Wishlist.objects.all()
     serializer_class = WishlistSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                        IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated]
+    
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -779,6 +793,79 @@ def success_payment(request, order_id):
         book.save()
 
     return Response({'message': 'Payment successful, stock updated'}, status=200)
+
+
+
+# -------------------------------------------------------------------------------------
+
+# ----------------------------------- Agent Model -------------------------------------
+from django.conf import settings
+from google import genai
+from pydantic import BaseModel, Field
+from typing import List, Annotated
+import json
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def ai_model(request):
+    if request.method == 'GET':
+        user = request.user
+        serializer = AIModelSerializer(user)
+        user_interests = serializer.data
+
+        books = Book.objects.all()
+        books_json = []
+        for book in books:
+            books_json.append({
+                'id': book.book_id,
+                'book_name': book.book_name,
+                'book_about': book.brief_abstraction,
+            })
+
+        prompt = f"""
+            You are an assistant in a book store. Based on the following user data and the available books, perform two tasks:
+
+            1. Generate a short paragraph describing the user's interests and suggest relevant books. Don't mention books' names.
+            2. Return a JSON with:
+            - "descriped_paragraph": the paragraph
+            - "books_ids": a list of the suggested book IDs.
+
+            User data:
+            {json.dumps(user_interests)}
+
+            Available books:
+            {json.dumps(books_json)}
+
+            Only output a valid JSON object.
+            """
+
+        class OutputShape(BaseModel):
+            descriped_paragraph: str
+            books_ids: Annotated[List[int], Field(min_items=5, max_items=5)]
+
+        try:
+            print('before client')
+            client = genai.Client(api_key=settings.GEMINI_API_KEY)
+            print('after client')
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=prompt,
+                config={
+                    'response_mime_type': 'application/json',
+                    'response_schema': OutputShape,
+                },  
+            )
+            print('before response')
+
+            return Response({
+                "paragraph": response.parsed.descriped_paragraph,
+                "suggested_books": response.parsed.books_ids
+            })
+        
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+    return Response({'error': 'Error Happened, please try again'}, status=404)
 
 
 

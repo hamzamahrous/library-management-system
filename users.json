@@ -39,6 +39,12 @@
             "username": "ahmed49",
             "email": "ahmedadel303200349@gmail.com",
             "password": "Ahmed_Adel30@@"
+        },
+        {
+            "id": 7,
+            "username": "ahmed2003",
+            "email": "ahmed2003@gmail.com",
+            "password": "ahmed1234ahmed"
         }
         ]
 }
