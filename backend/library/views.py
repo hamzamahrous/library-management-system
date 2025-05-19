@@ -42,6 +42,7 @@ def info_page(request):
         'one_review': request.build_absolute_uri(reverse('review-detail', kwargs={'pk': 1})),
         'orders': request.build_absolute_uri(reverse('order-list')),
         'one_order': request.build_absolute_uri(reverse('order-detail', kwargs={'pk': 1})),
+        'create_order_from_cart': request.build_absolute_uri(reverse('create-order-from-cart')),
         'payments': request.build_absolute_uri(reverse('payment-list')),
         'one_payment': request.build_absolute_uri(reverse('payment-detail', kwargs={'pk': 1})),
         'transactions': request.build_absolute_uri(reverse('transaction-list')),
@@ -500,6 +501,36 @@ class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
 order_detail = OrderDetail.as_view()
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_order_from_cart(request):
+    user = request.user
+    shipping_address = request.data.get("shipping_address")
+    
+    # Get all unlinked transactions (cart items)
+    cart_transactions = Transaction.objects.filter(user=user, order__isnull=True)
+    
+    if not cart_transactions.exists():
+        return Response({'error': 'Cart is empty'}, status=400)
+
+    total_price = sum([t.book.price * t.quantity for t in cart_transactions])
+
+    # Create order
+    order = Order.objects.create(
+        user=user,
+        total_price=total_price,
+        shipping_address=shipping_address,
+        order_status=Order.StatusChoices.PENDING,
+        is_paid=False
+    )
+
+    # Link transactions to the new order
+    cart_transactions.update(order=order)
+
+    return Response({'message': 'Order created successfully', 'order_id': order.order_id}, status=201)
+
+
+
 # @api_view(['GET', 'POST'])
 # def transaction_list(request):
 #     if request.method == 'GET':
@@ -660,6 +691,9 @@ class CreateCheckoutSessionView(views.APIView):
     def post(self, request, order_id):
         try:
             order = Order.objects.get(order_id=order_id, user=request.user)
+            if order.is_paid:
+                return Response({'error': 'this order is already paid ! '}, status=400)
+
             line_items = []
             total_price = 0
 
@@ -680,7 +714,6 @@ class CreateCheckoutSessionView(views.APIView):
             if not line_items:
                 return Response({"error": "No items found in order."}, status=400)
 
-            # إنشاء الـ Payment بعد حساب الـ total_price
             payment = Payment.objects.create(
                 order=order,
                 user=request.user,
@@ -689,7 +722,7 @@ class CreateCheckoutSessionView(views.APIView):
                 payment_status=Payment.PaymentStatus.PENDING,
             )
 
-            # إنشاء الـ Stripe Session
+            
             session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
                 line_items=line_items,
@@ -699,7 +732,7 @@ class CreateCheckoutSessionView(views.APIView):
                 metadata={'order_id': order.order_id}
             )
 
-            # ربط الـ stripe_payment_id بعد ما الـ session يتولد
+            
             payment.stripe_payment_id = session.id
             payment.save()
 
@@ -754,30 +787,18 @@ def stripe_webhook(request):
     return Response(status=200)
 
 @api_view(['GET'])
+@api_view(['GET'])
 def success_payment(request, order_id):
     try:
         order = Order.objects.get(order_id=order_id)
     except Order.DoesNotExist:
         return Response({'error': 'Order not found'}, status=404)
 
-    # تحديث حالة الـ Order
-    order.order_status = Order.StatusChoices.CONFIRMED
-    order.is_paid = True
-    order.save()
-
-    # تحديث حالة الـ Payment لـ "Confirmed"
-    payment = order.payments.first()
-    if payment:
-        payment.payment_status = Payment.PaymentStatus.CONFIRMED
-        payment.payment_time = timezone.now()
-        payment.save()
-    else:
-        return Response({'error': 'No payment found for this order'}, status=400)
-
     transactions = order.transactions.all()
     if not transactions.exists():
         return Response({'error': 'No items found in order'}, status=400)
 
+    # Update book stock
     for transaction in transactions:
         book = transaction.book
         quantity = transaction.quantity
@@ -792,7 +813,24 @@ def success_payment(request, order_id):
         book.num_of_sells += quantity
         book.save()
 
+    # Mark order as paid
+    order.order_status = Order.StatusChoices.CONFIRMED
+    order.is_paid = True
+    order.save()
+
+    # Update payment
+    payment = order.payments.first()
+    if payment:
+        payment.payment_status = Payment.PaymentStatus.CONFIRMED
+        payment.payment_time = timezone.now()
+        payment.save()
+    else:
+        return Response({'error': 'No payment found for this order'}, status=400)
+
+    Transaction.objects.filter(order=order).delete()
+
     return Response({'message': 'Payment successful, stock updated'}, status=200)
+
 
 
 

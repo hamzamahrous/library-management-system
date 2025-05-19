@@ -37,6 +37,7 @@ urlpatterns = [
     
     path('orders/', order_list, name='order-list'),
     path('orders/<int:pk>/', order_detail, name='order-detail'),
+    path('create-order-from-cart/', create_order_from_cart, name='create-order-from-cart'),
     
     path('payments/', payment_list, name='payment-list'),
     path('payments/<int:pk>/', payment_detail, name='payment-detail'),
