@@ -38,7 +38,7 @@ export class CartService {
 
   addToCart(bookId: number, quantity: number = 1) {
     return this.http
-      .post<CartItem>('api/transactions/', { book: bookId, quantity, order: 1 })
+      .post<CartItem>('api/transactions/', { book: bookId, quantity })
       .pipe(
         tap((addedItem) => {
           const currentCart = this.cart$.value;

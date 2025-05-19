@@ -1,4 +1,15 @@
 <section>
+  @if (isLoading) {
+  <div
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+  >
+    <div
+      class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600 border-solid"
+    ></div>
+  </div>
+
+  }
+
   <div class="bg-white rounded-3xl shadow-xl p-8 max-w-5xl mx-auto mt-4 mb-12">
     <h2
       class="text-4xl font-extrabold mb-14 text-slate-800 text-center tracking-wide"
@@ -6,7 +17,6 @@
       Order Summary
     </h2>
 
-    <!-- Header row -->
     <div
       class="hidden sm:grid grid-cols-[2fr_1fr_1fr_1fr] gap-6 text-sm font-semibold text-gray-600 mb-4 px-4 bg-gray-50 rounded-xl py-3 select-none"
     >
@@ -117,7 +127,7 @@
         Shipping Information
       </h3>
 
-      <form class="space-y-6">
+      <form class="space-y-6" [formGroup]="form" (ngSubmit)="onSubmit()">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label
@@ -130,8 +140,13 @@
               type="tel"
               id="phone"
               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-blue-600 focus:border-blue-600 shadow-sm"
-              required
+              formControlName="phone"
             />
+            @if (phoneIsInvalid) {
+            <p class="mt-1 text-sm text-red-600">
+              Please enter a valid phone number
+            </p>
+            }
           </div>
 
           <div>
@@ -145,8 +160,13 @@
               type="text"
               id="address"
               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-blue-600 focus:border-blue-600 shadow-sm"
-              required
+              formControlName="street"
             />
+            @if (streetIsInvalid) {
+            <p class="mt-1 text-sm text-red-600">
+              Please enter a valid street address
+            </p>
+            }
           </div>
         </div>
 
@@ -162,8 +182,11 @@
               type="text"
               id="city"
               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-blue-600 focus:border-blue-600 shadow-sm"
-              required
+              formControlName="city"
             />
+            @if (cityIsInvalid) {
+            <p class="mt-1 text-sm text-red-600">Please enter a valid city</p>
+            }
           </div>
 
           <div>
@@ -177,27 +200,32 @@
               type="text"
               id="state"
               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-blue-600 focus:border-blue-600 shadow-sm"
-              required
+              formControlName="state"
             />
+            @if (stateIsInvalid) {
+            <p class="mt-1 text-sm text-red-600">
+              Please enter a valid state/province
+            </p>
+            }
           </div>
         </div>
-      </form>
 
-      <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-between">
-        <button
-          type="button"
-          class="py-3 px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-xl transition duration-200 order-2 sm:order-1"
-          routerLink="/cart"
-        >
-          Go Back to Cart
-        </button>
-        <button
-          type="button"
-          class="py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition duration-200 order-1 sm:order-2"
-        >
-          Pay Now
-        </button>
-      </div>
+        <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-between">
+          <button
+            type="button"
+            class="py-3 px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-xl transition duration-200 order-2 sm:order-1"
+            routerLink="/cart"
+          >
+            Go Back to Cart
+          </button>
+          <button
+            type="submit"
+            class="py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition duration-200 order-1 sm:order-2"
+          >
+            Pay Now
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </section>

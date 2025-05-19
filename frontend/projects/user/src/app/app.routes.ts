@@ -9,6 +9,7 @@ import { WishListComponent } from './wish-list/wish-list.component';
 import { AuthGuard } from './guards/auth.guard';
 import { CheckoutComponent } from './payment/checkout/checkout.component';
 import { StripeComponent } from './payment/stripe/stripe.component';
+import { PaymentSuccessComponent } from './payment/payment-success/payment-success.component';
 
 export const routes: Routes = [
   {
@@ -41,6 +42,10 @@ export const routes: Routes = [
         path: 'whish-list',
         component: WishListComponent,
         canActivate: [AuthGuard],
+      },
+      {
+        path: 'success_payment',
+        component: PaymentSuccessComponent,
       },
       {
         path: 'books',
