@@ -1018,7 +1018,7 @@ def ai_model(request):
 
         class OutputShape(BaseModel):
             descriped_paragraph: str
-            books_ids: Annotated[List[int], Field(min_items=5, max_items=5)]
+            books_ids: Annotated[List[int], Field(min_items=4, max_items=4)]
 
         try:
             print('before client')
