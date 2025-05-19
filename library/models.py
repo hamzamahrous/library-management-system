@@ -50,7 +50,7 @@ class Book (models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     num_of_sells = models.PositiveIntegerField(default=0)
     stock_quantity = models.PositiveIntegerField(default=0)
-    evaluation = models.PositiveSmallIntegerField(null=True, blank=True)  # Allowing null for books without evaluation
+    evaluation = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(5.0)])  # Allowing null for books without evaluation
     brief_abstraction = models.TextField(blank=True)
     long_abstraction = models.TextField(null=True)
     cover_image = models.URLField(max_length=500, blank=True)
