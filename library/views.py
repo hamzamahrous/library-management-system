@@ -793,12 +793,12 @@ def success_payment(request, order_id):
     except Order.DoesNotExist:
         return Response({'error': 'Order not found'}, status=404)
 
-    # تحديث حالة الـ Order
     order.order_status = Order.StatusChoices.CONFIRMED
     order.is_paid = True
     order.save()
 
-    # تحديث حالة الـ Payment لـ "Confirmed"
+    Transaction.objects.filter(order=order).delete()
+
     payment = order.payments.first()
     if payment:
         payment.payment_status = Payment.PaymentStatus.CONFIRMED
