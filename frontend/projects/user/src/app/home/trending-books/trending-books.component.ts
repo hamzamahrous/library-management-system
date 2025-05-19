@@ -22,7 +22,7 @@ export class TrendingBooksComponent {
     this.booksService.getTrendingBooks().subscribe({
       next: (Data) => {
         this.trendingBooks = Data;
-        this.trendingBooks = this.trendingBooks.slice(4, 11);
+        this.trendingBooks = this.trendingBooks.slice(1, 8);
       },
     });
   }

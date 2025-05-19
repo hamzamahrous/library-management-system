@@ -14,9 +14,18 @@ export interface CartItem {
 export class CartService {
   private http = inject(HttpClient);
   private cart$ = new BehaviorSubject<CartItem[]>([]);
+  private sum$ = new BehaviorSubject<number>(0);
 
   getCart() {
     return this.cart$.asObservable();
+  }
+
+  getSum() {
+    return this.sum$.asObservable();
+  }
+
+  setNewSumValue(newTotal: number) {
+    this.sum$.next(newTotal);
   }
 
   loadCart() {

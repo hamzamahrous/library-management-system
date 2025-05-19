@@ -7,6 +7,8 @@ import { UserProfileComponent } from './user-profile/user-profile.component';
 import { CartComponent } from './cart/cart.component';
 import { WishListComponent } from './wish-list/wish-list.component';
 import { AuthGuard } from './guards/auth.guard';
+import { CheckoutComponent } from './payment/checkout/checkout.component';
+import { StripeComponent } from './payment/stripe/stripe.component';
 
 export const routes: Routes = [
   {
@@ -26,6 +28,14 @@ export const routes: Routes = [
         path: 'cart',
         component: CartComponent,
         canActivate: [AuthGuard],
+      },
+      {
+        path: 'checkout',
+        component: CheckoutComponent,
+      },
+      {
+        path: 'stripe',
+        component: StripeComponent,
       },
       {
         path: 'whish-list',

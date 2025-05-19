@@ -73,6 +73,8 @@ export class CartComponent implements OnInit {
     for (let total of this.itemTotals.values()) {
       this.sum += total;
     }
+
+    this.cartService.setNewSumValue(this.sum);
   }
 
   handleItemDeleted({
