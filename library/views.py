@@ -42,6 +42,7 @@ def info_page(request):
         'one_review': request.build_absolute_uri(reverse('review-detail', kwargs={'pk': 1})),
         'orders': request.build_absolute_uri(reverse('order-list')),
         'one_order': request.build_absolute_uri(reverse('order-detail', kwargs={'pk': 1})),
+        'create_order_from_cart': request.build_absolute_uri(reverse('create-order-from-cart')),
         'payments': request.build_absolute_uri(reverse('payment-list')),
         'one_payment': request.build_absolute_uri(reverse('payment-detail', kwargs={'pk': 1})),
         'transactions': request.build_absolute_uri(reverse('transaction-list')),
@@ -498,6 +499,36 @@ class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
         return Response(data)
 
 order_detail = OrderDetail.as_view()
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_order_from_cart(request):
+    user = request.user
+    shipping_address = request.data.get("shipping_address")
+    
+    # Get all unlinked transactions (cart items)
+    cart_transactions = Transaction.objects.filter(user=user, order__isnull=True)
+    
+    if not cart_transactions.exists():
+        return Response({'error': 'Cart is empty'}, status=400)
+
+    total_price = sum([t.book.price * t.quantity for t in cart_transactions])
+
+    # Create order
+    order = Order.objects.create(
+        user=user,
+        total_price=total_price,
+        shipping_address=shipping_address,
+        order_status=Order.StatusChoices.PENDING,
+        is_paid=False
+    )
+
+    # Link transactions to the new order
+    cart_transactions.update(order=order)
+
+    return Response({'message': 'Order created successfully', 'order_id': order.order_id}, status=201)
+
 
 
 # @api_view(['GET', 'POST'])
