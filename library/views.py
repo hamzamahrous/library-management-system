@@ -155,7 +155,7 @@ def user_logout(request):
 class UserList(generics.ListAPIView):
     queryset = User.objects.prefetch_related('transactions').all()
     serializer_class = UserListSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 user_list = UserList.as_view()
 
 
