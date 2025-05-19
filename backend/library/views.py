@@ -45,6 +45,7 @@ def info_page(request):
         'create_order_from_cart': request.build_absolute_uri(reverse('create-order-from-cart')),
         'payments': request.build_absolute_uri(reverse('payment-list')),
         'one_payment': request.build_absolute_uri(reverse('payment-detail', kwargs={'pk': 1})),
+        'pay': request.build_absolute_uri(reverse('pay', kwargs={'pk': 1})),
         'transactions': request.build_absolute_uri(reverse('transaction-list')),
         'one_transaction':request.build_absolute_uri(reverse('transaction-detail', kwargs={'pk': 1})),
         'ai_model':request.build_absolute_uri(reverse('ai-model')),
