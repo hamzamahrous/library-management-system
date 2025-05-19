@@ -800,12 +800,147 @@ def success_payment(request, order_id):
 
 # ----------------------------------- Agent Model -------------------------------------
 
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
-from langchain_mistralai.chat_models import ChatMistralAI
-from helpers.config import get_settings
+# from langchain.prompts import PromptTemplate
+# from langchain.chains import LLMChain
+# from langchain_mistralai.chat_models import ChatMistralAI
+# from helpers.config import get_settings
+# import json
+# import re
+
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def ai_model(request):
+#     if request.method == 'GET':
+#         user = request.user
+#         serializer = AIModelSerializer(user)
+#         user_interests = serializer.data
+
+#         books = Book.objects.all()
+#         books_json = []
+#         for book in books:
+#             books_json.append({
+#                 'id': book.book_id,
+#                 'book_name': book.book_name,
+#                 'book_about': book.brief_abstraction,
+#             })
+
+#         # Describe your schema for the LLM
+#         schema_description = """
+#         Book: id, book_name, author_name, category_id, price, etc.
+#         User: id, username, wishlist (list of books), transactions, etc.
+#         """
+
+#         # Use LangChain's PromptTemplate
+#         prompt_template = PromptTemplate(
+#             input_variables=["schema", "user", "books"],
+#             template="""
+#         You are an assistant in a book store. Here is the current database schema:
+#         {schema}
+
+#         User data:
+#         {user}
+
+#         Available books:
+#         {books}
+
+#         Task:
+#         1. Generate a short paragraph describing the user's interests and suggest relevant books (not already in their wishlist or orders).
+#         2. Return a JSON with:
+#           - \"descriped_paragraph\": the paragraph
+#           - \"books_ids\": a list of the suggested book IDs.
+
+#         Only output a valid JSON object.
+#         """
+#         )
+
+#         prompt = prompt_template.format(
+#             schema=schema_description,
+#             user=json.dumps(user_interests),
+#             books=json.dumps(books_json)
+#         )
+
+#         settings = get_settings()
+#         api_key = settings.MISTRAL_API_KEY
+
+#         llm = ChatMistralAI(
+#             mistral_api_key=api_key,
+#             model="mistral-large-latest",  # or another Mistral model
+#             temperature=0.2,
+#         )
+#         chain = LLMChain(llm=llm, prompt=prompt_template)
+
+#         try:
+#             response = chain.run(
+#                 schema=schema_description,
+#                 user=json.dumps(user_interests),
+#                 books=json.dumps(books_json)
+#             )
+#             print("LLM Response:", response)  # Debug: See what the LLM returns
+#             if not response or not response.strip():
+#                 print("LLM returned an empty response!")
+#                 return Response({"error": "LLM returned no response"}, status=500)
+
+#             # Remove Markdown code block if present
+#             if response.strip().startswith("```"):
+#                 match = re.search(r"```(?:json)?\n?(.*)```", response, re.DOTALL)
+#                 if match:
+#                     response = match.group(1).strip()
+
+#             try:
+#                 response_json = json.loads(response)
+#             except Exception as e:
+#                 print("Error parsing LLM response:", e)
+#                 print("Raw LLM response:", repr(response))
+#                 return Response({"error": str(e), "raw": response}, status=500)
+
+#             # Organize summary as bullet points
+#             summary = response_json.get("descriped_paragraph", "")
+#             user_profile_summary = [s.strip() for s in summary.split('.') if s.strip()]
+
+#             # Professional extraction of user interests
+#             interest_keywords = [
+#                 "personal development", "productivity", "history", "ancient world", "science", "fiction", "technology",
+#                 "self-help", "biography", "business", "psychology", "philosophy", "romance", "fantasy"
+#             ]
+#             summary_lower = summary.lower()
+#             user_interests = []
+#             for keyword in interest_keywords:
+#                 if keyword in summary_lower:
+#                     user_interests.append(keyword.title())
+#             user_interests = sorted(set(user_interests))
+
+#             # Get detailed book info (limit to 3 books)
+#             book_ids = response_json.get("books_ids", [])[:3]
+#             books = Book.objects.filter(book_id__in=book_ids).select_related('category_id')
+#             book_list = [
+#                 {
+#                     "id": book.book_id,
+#                     "name": book.book_name,
+#                     "author": book.author_name,
+#                     "cover_image": book.cover_image,
+#                     "category": book.category_id.category_name if book.category_id else None,
+#                 }
+#                 for book in books
+#             ]
+
+#             return Response({
+#                 "user_interests": user_interests,
+#                 "user_profile_summary": user_profile_summary,
+#                 "suggested_books": book_list
+#             })
+#         except Exception as e:
+#             import traceback
+#             print(traceback.format_exc())  # Print full error to terminal
+#             return Response({"error": str(e)}, status=500)
+#     return Response({'error': 'Error Happened, please try again'}, status=404)
+
+
+from django.conf import settings
+from google import genai
+from pydantic import BaseModel, Field
+from typing import List, Annotated
 import json
-import re
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -824,175 +959,51 @@ def ai_model(request):
                 'book_about': book.brief_abstraction,
             })
 
-        # Describe your schema for the LLM
-        schema_description = """
-        Book: id, book_name, author_name, category_id, price, etc.
-        User: id, username, wishlist (list of books), transactions, etc.
-        """
+        prompt = f"""
+            You are an assistant in a book store. Based on the following user data and the available books, perform two tasks:
 
-        # Use LangChain's PromptTemplate
-        prompt_template = PromptTemplate(
-            input_variables=["schema", "user", "books"],
-            template="""
-        You are an assistant in a book store. Here is the current database schema:
-        {schema}
+            1. Generate a short paragraph describing the user's interests and suggest relevant books. Don't mention books' names.
+            2. Return a JSON with:
+            - "descriped_paragraph": the paragraph
+            - "books_ids": a list of the suggested book IDs.
 
-        User data:
-        {user}
+            Note: Don't return any book that is found already in the user transaction on wishlist.
 
-        Available books:
-        {books}
+            User data:
+            {json.dumps(user_interests)}
 
-        Task:
-        1. Generate a short paragraph describing the user's interests and suggest relevant books (not already in their wishlist or orders).
-        2. Return a JSON with:
-          - \"descriped_paragraph\": the paragraph
-          - \"books_ids\": a list of the suggested book IDs.
+            Available books:
+            {json.dumps(books_json)}
 
-        Only output a valid JSON object.
-        """
-        )
+            Only output a valid JSON object.
+            """
 
-        prompt = prompt_template.format(
-            schema=schema_description,
-            user=json.dumps(user_interests),
-            books=json.dumps(books_json)
-        )
-
-        settings = get_settings()
-        api_key = settings.MISTRAL_API_KEY
-
-        llm = ChatMistralAI(
-            mistral_api_key=api_key,
-            model="mistral-large-latest",  # or another Mistral model
-            temperature=0.2,
-        )
-        chain = LLMChain(llm=llm, prompt=prompt_template)
+        class OutputShape(BaseModel):
+            descriped_paragraph: str
+            books_ids: Annotated[List[int], Field(min_items=5, max_items=5)]
 
         try:
-            response = chain.run(
-                schema=schema_description,
-                user=json.dumps(user_interests),
-                books=json.dumps(books_json)
+            print('before client')
+            client = genai.Client(api_key=settings.GEMINI_API_KEY)
+            print('after client')
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=prompt,
+                config={
+                    'response_mime_type': 'application/json',
+                    'response_schema': OutputShape,
+                },  
             )
-            print("LLM Response:", response)  # Debug: See what the LLM returns
-            if not response or not response.strip():
-                print("LLM returned an empty response!")
-                return Response({"error": "LLM returned no response"}, status=500)
-
-            # Remove Markdown code block if present
-            if response.strip().startswith("```"):
-                match = re.search(r"```(?:json)?\n?(.*)```", response, re.DOTALL)
-                if match:
-                    response = match.group(1).strip()
-
-            try:
-                response_json = json.loads(response)
-            except Exception as e:
-                print("Error parsing LLM response:", e)
-                print("Raw LLM response:", repr(response))
-                return Response({"error": str(e), "raw": response}, status=500)
-
-            # Organize summary as bullet points
-            summary = response_json.get("descriped_paragraph", "")
-            user_profile_summary = [s.strip() for s in summary.split('.') if s.strip()]
-
-            # Professional extraction of user interests
-            interest_keywords = [
-                "personal development", "productivity", "history", "ancient world", "science", "fiction", "technology",
-                "self-help", "biography", "business", "psychology", "philosophy", "romance", "fantasy"
-            ]
-            summary_lower = summary.lower()
-            user_interests = []
-            for keyword in interest_keywords:
-                if keyword in summary_lower:
-                    user_interests.append(keyword.title())
-            user_interests = sorted(set(user_interests))
-
-            # Get detailed book info (limit to 3 books)
-            book_ids = response_json.get("books_ids", [])[:3]
-            books = Book.objects.filter(book_id__in=book_ids).select_related('category_id')
-            book_list = [
-                {
-                    "id": book.book_id,
-                    "name": book.book_name,
-                    "author": book.author_name,
-                    "cover_image": book.cover_image,
-                    "category": book.category_id.category_name if book.category_id else None,
-                }
-                for book in books
-            ]
+            print('before response')
 
             return Response({
-                "user_interests": user_interests,
-                "user_profile_summary": user_profile_summary,
-                "suggested_books": book_list
+                "paragraph": response.parsed.descriped_paragraph,
+                "suggested_books": response.parsed.books_ids
             })
+        
         except Exception as e:
-            import traceback
-            print(traceback.format_exc())  # Print full error to terminal
             return Response({"error": str(e)}, status=500)
     return Response({'error': 'Error Happened, please try again'}, status=404)
-
-
-# from django.conf import settings
-# from google import genai
-# from pydantic import BaseModel, Field
-# from typing import List, Annotated
-# import json
-
-
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def ai_model(request):
-#     if request.method == 'GET':
-#         user = request.user
-#         serializer = AIModelSerializer(user)
-#         user_interests = serializer.data
-
-        # prompt = f"""
-        #     You are an assistant in a book store. Based on the following user data and the available books, perform two tasks:
-
-        #     1. Generate a short paragraph describing the user's interests and suggest relevant books. Don't mention books' names.
-        #     2. Return a JSON with:
-        #     - "descriped_paragraph": the paragraph
-        #     - "books_ids": a list of the suggested book IDs.
-
-        #     User data:
-        #     {json.dumps(user_interests)}
-
-        #     Available books:
-        #     {json.dumps(books_json)}
-
-        #     Only output a valid JSON object.
-        #     """
-
-        # class OutputShape(BaseModel):
-        #     descriped_paragraph: str
-        #     books_ids: Annotated[List[int], Field(min_items=5, max_items=5)]
-
-        # try:
-        #     print('before client')
-        #     client = genai.Client(api_key=settings.GEMINI_API_KEY)
-        #     print('after client')
-        #     response = client.models.generate_content(
-        #         model="gemini-2.0-flash",
-        #         contents=prompt,
-    #             config={
-    #                 'response_mime_type': 'application/json',
-    #                 'response_schema': OutputShape,
-    #             },  
-    #         )
-    #         print('before response')
-
-    #         return Response({
-    #             "paragraph": response.parsed.descriped_paragraph,
-    #             "suggested_books": response.parsed.books_ids
-    #         })
-        
-    #     except Exception as e:
-    #         return Response({"error": str(e)}, status=500)
-    # return Response({'error': 'Error Happened, please try again'}, status=404)
 
 
 

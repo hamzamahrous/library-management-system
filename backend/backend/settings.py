@@ -14,8 +14,8 @@ import os
 from decouple import config
 from pathlib import Path
 from django.core.management.utils import get_random_secret_key
-from dotenv import load_dotenv
-load_dotenv()
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 REPO_DIR = BASE_DIR.parent
@@ -211,14 +211,9 @@ EMAIL_HOST_USER = config('EMAIL-HOST-USER', default='your_email_username')  # Re
 EMAIL_HOST_PASSWORD = config('EMAIL-HOST-PASSWORD', default='your_email_password')  # Replace with your email password
 
 
-<<<<<<< HEAD
-STRIPE_SECRET_KEY=os.getenv('STRIPE_SECRET_KEY')
-STRIPE_PUBLISHABLE_KEY=os.getenv('STRIPE_PUBLISHABLE_KEY')
-=======
 STRIPE_SECRET_KEY = 'sk_test_51RPPQuQd75JuuVLAP5q2202Ez5zZOzIUjGm6trOrT90aFOExRUjJGHryrbcudFXwkH164o3j8wovXXbIZ407WFTg00bJcAn8QC'
 
 try:
     GEMINI_API_KEY = config('GEMINI-API-KEY', default='AIzaSyC8g-EHGUFz7OA1YhX50DS8N3jbLM5L_Gw')
 except:
     print("Please, get you GEMINI API KEY!")
->>>>>>> 0aee4338a93294caf0427e5d78f6fd4c61dba473
