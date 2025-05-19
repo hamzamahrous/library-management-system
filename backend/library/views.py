@@ -967,6 +967,8 @@ def ai_model(request):
             - "descriped_paragraph": the paragraph
             - "books_ids": a list of the suggested book IDs.
 
+            Note: Don't return any book that is found already in the user transaction on wishlist.
+
             User data:
             {json.dumps(user_interests)}
 
