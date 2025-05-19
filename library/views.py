@@ -691,6 +691,9 @@ class CreateCheckoutSessionView(views.APIView):
     def post(self, request, order_id):
         try:
             order = Order.objects.get(order_id=order_id, user=request.user)
+            if order.is_paid:
+                return Response({'error': 'this order is already paid ! '}, status=400)
+
             line_items = []
             total_price = 0
 
@@ -711,7 +714,6 @@ class CreateCheckoutSessionView(views.APIView):
             if not line_items:
                 return Response({"error": "No items found in order."}, status=400)
 
-            # إنشاء الـ Payment بعد حساب الـ total_price
             payment = Payment.objects.create(
                 order=order,
                 user=request.user,
@@ -720,7 +722,7 @@ class CreateCheckoutSessionView(views.APIView):
                 payment_status=Payment.PaymentStatus.PENDING,
             )
 
-            # إنشاء الـ Stripe Session
+            
             session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
                 line_items=line_items,
@@ -730,7 +732,7 @@ class CreateCheckoutSessionView(views.APIView):
                 metadata={'order_id': order.order_id}
             )
 
-            # ربط الـ stripe_payment_id بعد ما الـ session يتولد
+            
             payment.stripe_payment_id = session.id
             payment.save()
 
