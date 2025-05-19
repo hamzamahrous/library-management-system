@@ -787,30 +787,18 @@ def stripe_webhook(request):
     return Response(status=200)
 
 @api_view(['GET'])
+@api_view(['GET'])
 def success_payment(request, order_id):
     try:
         order = Order.objects.get(order_id=order_id)
     except Order.DoesNotExist:
         return Response({'error': 'Order not found'}, status=404)
 
-    order.order_status = Order.StatusChoices.CONFIRMED
-    order.is_paid = True
-    order.save()
-
-    Transaction.objects.filter(order=order).delete()
-
-    payment = order.payments.first()
-    if payment:
-        payment.payment_status = Payment.PaymentStatus.CONFIRMED
-        payment.payment_time = timezone.now()
-        payment.save()
-    else:
-        return Response({'error': 'No payment found for this order'}, status=400)
-
     transactions = order.transactions.all()
     if not transactions.exists():
         return Response({'error': 'No items found in order'}, status=400)
 
+    # Update book stock
     for transaction in transactions:
         book = transaction.book
         quantity = transaction.quantity
@@ -825,7 +813,24 @@ def success_payment(request, order_id):
         book.num_of_sells += quantity
         book.save()
 
+    # Mark order as paid
+    order.order_status = Order.StatusChoices.CONFIRMED
+    order.is_paid = True
+    order.save()
+
+    # Update payment
+    payment = order.payments.first()
+    if payment:
+        payment.payment_status = Payment.PaymentStatus.CONFIRMED
+        payment.payment_time = timezone.now()
+        payment.save()
+    else:
+        return Response({'error': 'No payment found for this order'}, status=400)
+
+    Transaction.objects.filter(order=order).delete()
+
     return Response({'message': 'Payment successful, stock updated'}, status=200)
+
 
 
 
