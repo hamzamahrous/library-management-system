@@ -1,9 +1,65 @@
-<section class="container mx-auto max-w-3xl mt-16 px-6">
+<section class="container mx-auto max-w-6xl mt-12 px-6">
+  <div class="mb-12">
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-bold text-gray-800">
+        AI Suggestions Just for You
+      </h1>
+      <p class="mt-4 text-gray-600 text-lg max-w-xl mx-auto">
+        Smart recommendations based on your recent activity — discover books
+        you'll love.
+      </p>
+    </div>
+
+    @if(isLoadingAiData){
+    <div class="animate-pulse space-y-4">
+      <div class="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+      <div class="h-4 bg-gray-200 rounded w-5/6 mx-auto"></div>
+      <div class="h-4 bg-gray-200 rounded w-2/3 mx-auto"></div>
+    </div>
+
+    <div
+      class="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+    >
+      @for (i of [1, 2, 3, 4]; track i) {
+      <div class="animate-pulse rounded-xl bg-white p-2">
+        <div class="h-64 bg-gray-200 rounded-md mb-4"></div>
+        <div class="flex justify-center items-center gap-5">
+          <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+        </div>
+        <div class="mt-4 flex gap-5 mt-3">
+          <div class="h-6 w-1/2 bg-gray-200 rounded-md"></div>
+          <div class="h-6 w-1/2 bg-gray-200 rounded-md"></div>
+        </div>
+      </div>
+      }
+    </div>
+
+    } @else {
+    <div class="max-w-4xl mx-auto">
+      <p class="text-gray-700 leading-relaxed mb-12 text-center">
+        {{ aiParagraph }}
+      </p>
+    </div>
+
+    } @if(aiSuggestedBooks.length > 0){
+    <div
+      class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:gap-x-8"
+    >
+      @for (book of aiSuggestedBooks; track book.book_id) {
+      <app-book [book]="book" [displayInHomePage]="false"></app-book>
+      }
+    </div>
+    }
+  </div>
+
   <h1 class="text-4xl font-bold text-center text-gray-800 mb-10">
     User Information
   </h1>
 
-  <ul class="bg-white shadow rounded-lg divide-y divide-gray-200">
+  <ul
+    class="bg-white shadow max-w-3xl mx-auto rounded-lg divide-y divide-gray-200"
+  >
     <li
       class="p-5 flex items-center justify-between hover:bg-gray-50 transition"
     >

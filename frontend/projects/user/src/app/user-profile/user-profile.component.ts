@@ -5,11 +5,15 @@ import { Order } from '../order/order-type';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { SpinnerComponent } from '../spinner/spinner.component';
+import { BooksService } from '../books/services/books.service';
+import { Book } from '../books/book-type';
+import { BookComponent } from '../books/book/book.component';
 
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BookComponent],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css',
 })
@@ -28,10 +32,15 @@ export class UserProfileComponent implements OnInit {
   editEmail = false;
   emailErrorMessage = '';
   usernameErrorMessage = '';
+  aiParagraph: string = '';
+  aiSuggestedBooksIds: number[] = [];
+  aiSuggestedBooks: Book[] = [];
+  isLoadingAiData: boolean = true;
 
   orders: Order[] = [];
 
   private authService = inject(AuthService);
+  private booksService = inject(BooksService);
   private http = inject(HttpClient);
 
   ngOnInit(): void {
@@ -43,6 +52,31 @@ export class UserProfileComponent implements OnInit {
         }
       },
     });
+
+    this.http
+      .get<{ paragraph: string; suggested_books: number[] }>('api/ai-model/')
+      .subscribe({
+        next: (res) => {
+          this.aiParagraph = res.paragraph;
+          this.aiSuggestedBooksIds = res.suggested_books;
+
+          for (let i = 0; i < this.aiSuggestedBooksIds.length; i++) {
+            this.booksService
+              .getBookDetails(this.aiSuggestedBooksIds[i])
+              .subscribe({
+                next: (res) => {
+                  this.aiSuggestedBooks.push(res);
+                },
+              });
+          }
+
+          this.isLoadingAiData = false;
+        },
+
+        error: (err) => {
+          this.isLoadingAiData = false;
+        },
+      });
   }
 
   logout() {
@@ -90,7 +124,7 @@ export class UserProfileComponent implements OnInit {
         },
 
         error: (err) => {
-          // error
+          this.aiParagraph = 'An error occurred, Please try again later';
         },
       });
   }

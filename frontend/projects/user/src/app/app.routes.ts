@@ -6,6 +6,7 @@ import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.
 import { UserProfileComponent } from './user-profile/user-profile.component';
 import { CartComponent } from './cart/cart.component';
 import { WishListComponent } from './wish-list/wish-list.component';
+import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -19,14 +20,17 @@ export const routes: Routes = [
       {
         path: 'user-profile',
         component: UserProfileComponent,
+        canActivate: [AuthGuard],
       },
       {
         path: 'cart',
         component: CartComponent,
+        canActivate: [AuthGuard],
       },
       {
         path: 'whish-list',
         component: WishListComponent,
+        canActivate: [AuthGuard],
       },
       {
         path: 'books',
