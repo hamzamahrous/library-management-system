@@ -191,7 +191,7 @@ class PaymentSerializer(serializers.ModelSerializer):
 class BookBriefSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ['book_name', 'brief_abstraction']
+        fields = ['book_id', 'book_name', 'brief_abstraction']
 
 # class AIModelSerializer(serializers.ModelSerializer):
 #     transactions = serializers.SerializerMethodField()
@@ -208,7 +208,7 @@ class BookBriefSerializer(serializers.ModelSerializer):
 #     def get_wishlist_items(self, obj):
 #         books = [w.book for w in obj.wishlist_items.all()]
 #         return BookBriefSerializer(books, many=True).data
-      
+
 class AIModelSerializer(serializers.ModelSerializer):
     transactions = serializers.SerializerMethodField()
     wishlist_items = serializers.SerializerMethodField()
