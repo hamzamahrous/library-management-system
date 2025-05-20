@@ -97,7 +97,7 @@ cd backend
 ### 2. Create a virtual environment
 
 ```bash
-python3 -m venv env
+py -3.12 -m venv env
 ```
 
 > 💡 On Windows, you might use `python` instead of `python3`.
