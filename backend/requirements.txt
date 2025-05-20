@@ -12,5 +12,5 @@ django-silk
 stripe
 google-genai
 pydantic
-typing
-enum
+# typing
+# enum

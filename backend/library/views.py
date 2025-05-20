@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
+from django.shortcuts import redirect
+
 
 from django.contrib.auth import authenticate, update_session_auth_hash
 from django.core.exceptions import ObjectDoesNotExist
@@ -787,28 +789,27 @@ def stripe_webhook(request):
 
     return Response(status=200)
 
-@api_view(['GET'])
-@api_view(['GET'])
+@csrf_exempt  # in case CSRF token is missing from Stripe redirect
 def success_payment(request, order_id):
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+
     try:
         order = Order.objects.get(order_id=order_id)
     except Order.DoesNotExist:
-        return Response({'error': 'Order not found'}, status=404)
+        return JsonResponse({'error': 'Order not found'}, status=404)
 
     transactions = order.transactions.all()
     if not transactions.exists():
-        return Response({'error': 'No items found in order'}, status=400)
+        return JsonResponse({'error': 'No items found in order'}, status=400)
 
-    # Update book stock
+    # Update stock
     for transaction in transactions:
         book = transaction.book
         quantity = transaction.quantity
 
         if book.stock_quantity < quantity:
-            return Response(
-                {'error': f'Not enough stock for book {book.book_name}'},
-                status=400
-            )
+            return JsonResponse({'error': f'Not enough stock for book {book.book_name}'}, status=400)
 
         book.stock_quantity -= quantity
         book.num_of_sells += quantity
@@ -819,18 +820,17 @@ def success_payment(request, order_id):
     order.is_paid = True
     order.save()
 
-    # Update payment
     payment = order.payments.first()
     if payment:
         payment.payment_status = Payment.PaymentStatus.CONFIRMED
         payment.payment_time = timezone.now()
         payment.save()
     else:
-        return Response({'error': 'No payment found for this order'}, status=400)
+        return JsonResponse({'error': 'No payment found for this order'}, status=400)
 
     Transaction.objects.filter(order=order).delete()
 
-    return Response({'message': 'Payment successful, stock updated'}, status=200)
+    return redirect('http://localhost:4200/success-payment')  # Redirect to your frontend success page
 
 
 
