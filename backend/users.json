@@ -45,6 +45,12 @@
             "username": "ahmed2003",
             "email": "ahmed2003@gmail.com",
             "password": "ahmed1234ahmed"
+        },
+        {
+            "id": 7,
+            "username": "ahmeda3333",
+            "email": "ahmeda3333@gmail.com",
+            "password": "mypassword3333"
         }
         ]
 }

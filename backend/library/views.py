@@ -2,6 +2,7 @@ import pdb
 import stripe
 
 from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import redirect
 
 from rest_framework import status, generics, views, permissions, filters
 from rest_framework.response import Response
@@ -14,6 +15,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.http import JsonResponse, HttpResponse
 
 from .serializers import *
 from .models import User, Book, Wishlist, Review, Order, Payment, Category, Transaction
@@ -45,7 +47,6 @@ def info_page(request):
         'create_order_from_cart': request.build_absolute_uri(reverse('create-order-from-cart')),
         'payments': request.build_absolute_uri(reverse('payment-list')),
         'one_payment': request.build_absolute_uri(reverse('payment-detail', kwargs={'pk': 1})),
-        'pay': request.build_absolute_uri(reverse('pay', kwargs={'pk': 1})),
         'transactions': request.build_absolute_uri(reverse('transaction-list')),
         'one_transaction':request.build_absolute_uri(reverse('transaction-detail', kwargs={'pk': 1})),
         'ai_model':request.build_absolute_uri(reverse('ai-model')),
@@ -168,7 +169,7 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
 
 user_detail = UserDetail.as_view()
 
-
+@api_view(['POST'])
 def change_password(request):
     if request.method == 'POST':
         serializer = ChangePasswordSerializer(data=request.data)
@@ -787,28 +788,28 @@ def stripe_webhook(request):
 
     return Response(status=200)
 
-@api_view(['GET'])
-@api_view(['GET'])
+
+@csrf_exempt  # in case CSRF token is missing from Stripe redirect
 def success_payment(request, order_id):
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+
     try:
         order = Order.objects.get(order_id=order_id)
     except Order.DoesNotExist:
-        return Response({'error': 'Order not found'}, status=404)
+        return JsonResponse({'error': 'Order not found'}, status=404)
 
     transactions = order.transactions.all()
     if not transactions.exists():
-        return Response({'error': 'No items found in order'}, status=400)
+        return JsonResponse({'error': 'No items found in order'}, status=400)
 
-    # Update book stock
+    # Update stock
     for transaction in transactions:
         book = transaction.book
         quantity = transaction.quantity
 
         if book.stock_quantity < quantity:
-            return Response(
-                {'error': f'Not enough stock for book {book.book_name}'},
-                status=400
-            )
+            return JsonResponse({'error': f'Not enough stock for book {book.book_name}'}, status=400)
 
         book.stock_quantity -= quantity
         book.num_of_sells += quantity
@@ -819,18 +820,17 @@ def success_payment(request, order_id):
     order.is_paid = True
     order.save()
 
-    # Update payment
     payment = order.payments.first()
     if payment:
         payment.payment_status = Payment.PaymentStatus.CONFIRMED
         payment.payment_time = timezone.now()
         payment.save()
     else:
-        return Response({'error': 'No payment found for this order'}, status=400)
+        return JsonResponse({'error': 'No payment found for this order'}, status=400)
 
     Transaction.objects.filter(order=order).delete()
 
-    return Response({'message': 'Payment successful, stock updated'}, status=200)
+    return redirect('http://localhost:4200/success_payment')
 
 
 
@@ -1022,9 +1022,9 @@ def ai_model(request):
             books_ids: Annotated[List[int], Field(min_items=4, max_items=4)]
 
         try:
-            print('before client')
+            
             client = genai.Client(api_key=settings.GEMINI_API_KEY)
-            print('after client')
+            
             response = client.models.generate_content(
                 model="gemini-2.0-flash",
                 contents=prompt,
@@ -1033,7 +1033,7 @@ def ai_model(request):
                     'response_schema': OutputShape,
                 },  
             )
-            print('before response')
+            
 
             return Response({
                 "paragraph": response.parsed.descriped_paragraph,
