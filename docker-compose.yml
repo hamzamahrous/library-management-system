@@ -1,0 +1,42 @@
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    networks:
+      - mynetwork
+
+  backend:
+    build:
+      context: ./backend
+    env_file: .env
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    networks:
+      - mynetwork
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: always
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - mynetwork
+
+volumes:
+  postgres_data:
+
+networks:
+  mynetwork:
