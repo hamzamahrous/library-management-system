@@ -444,11 +444,11 @@ review_detail = ReviewDetail.as_view()
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class OrderList(generics.ListCreateAPIView):
-    queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    print(repr(TransactionSerializer()))
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -830,7 +830,7 @@ def success_payment(request, order_id):
 
     Transaction.objects.filter(order=order).delete()
 
-    return redirect('http://localhost:4200/success-payment')  # Redirect to your frontend success page
+    return redirect('http://localhost:4200/success_payment')  # Redirect to your frontend success page
 
 
 

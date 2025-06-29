@@ -5,7 +5,6 @@ import { Order } from '../order/order-type';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { SpinnerComponent } from '../spinner/spinner.component';
 import { BooksService } from '../books/services/books.service';
 import { Book } from '../books/book-type';
 import { BookComponent } from '../books/book/book.component';
