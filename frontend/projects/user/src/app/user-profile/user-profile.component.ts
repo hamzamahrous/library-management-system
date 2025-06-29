@@ -48,7 +48,12 @@ export class UserProfileComponent implements OnInit {
       next: (status) => {
         if (status) {
           this.user = this.authService.getUserData();
-          this.orders = this.authService.getUserOrders();
+
+          this.http.get<Order[]>('api/orders').subscribe({
+            next: (res) => {
+              this.orders = res;
+            },
+          });
         }
       },
     });

@@ -17,7 +17,6 @@ export class AuthService {
     first_name: '',
     last_name: '',
   };
-  orders: Order[] = this.loadOrdersFromStorage() || [];
   isLoggedIn$ = this.loggedIn.asObservable();
 
   constructor(private http: HttpClient, private router: Router) {}
@@ -32,9 +31,7 @@ export class AuthService {
         next: (res: any) => {
           localStorage.setItem('token', res.token);
           localStorage.setItem('user', JSON.stringify(res.user));
-          localStorage.setItem('orders', JSON.stringify(res.orders));
           this.user = res.user;
-          this.orders = res.orders;
 
           this.loggedIn.next(true);
           observer.next(res);
@@ -71,17 +68,8 @@ export class AuthService {
     return this.user;
   }
 
-  getUserOrders(): Order[] {
-    return this.orders;
-  }
-
   private loadUserFromStorage(): User | null {
     const userData = localStorage.getItem('user');
     return userData ? JSON.parse(userData) : null;
-  }
-
-  private loadOrdersFromStorage(): Order[] | null {
-    const orders = localStorage.getItem('orders');
-    return orders ? JSON.parse(orders) : null;
   }
 }
