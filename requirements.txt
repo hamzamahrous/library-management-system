@@ -15,3 +15,4 @@ pydantic==2.11.4
 typing==3.7.4.3
 gunicorn
 # psycopg2-binary
+pydantic_settings

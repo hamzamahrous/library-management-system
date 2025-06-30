@@ -29,15 +29,18 @@ print(REPO_DIR)
 SECRET_KEY = config('DJANGO-SECRET-KEY', default=get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DJANGO-DEBUG', cast=bool, default=True)
-
+DEBUG = config('DJANGO-DEBUG', cast=bool, default=False)
+    
 ALLOWED_HOSTS = [
-    '*',
+    '.railway.app',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://*",
 ]
+
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
 
 # Application definition
 
