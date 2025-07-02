@@ -16,3 +16,4 @@ typing==3.7.4.3
 gunicorn
 # psycopg2-binary
 pydantic_settings
+waitress

@@ -155,7 +155,7 @@ STATIC_URL = "/static/"
 # locked files that do not change during run time.
 # Is put in .gitignore.
 # External static file server.
-STATIC_ROOT = os.path.join(BASE_DIR, "static_root")  # When I make collectstatic, this change.
+STATIC_ROOT = os.path.join(BASE_DIR, "static")  # When I make collectstatic, this change.
 
 # Retain a copy of static files here.
 # like custom css.
