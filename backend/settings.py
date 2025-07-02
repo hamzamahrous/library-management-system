@@ -160,7 +160,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")  # When I make collectstatic, thi
 # Retain a copy of static files here.
 # like custom css.
 # Unlocked files that change during development.
-STATICFIELS_DIRS = [
+STATICFILES_DIRS = [
     BASE_DIR / 'staticfiles'
 ]
 
