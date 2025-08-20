@@ -26,18 +26,24 @@ print(REPO_DIR)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = os.environ.get("DJANGO-SECRET-KEY")
-SECRET_KEY = config('DJANGO-SECRET-KEY', default=get_random_secret_key())
+SECRET_KEY = config('DJANGO_SECRET_KEY', default=get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DJANGO-DEBUG', cast=bool, default=True)
-
+DEBUG = config('DJANGO_DEBUG', cast=bool, default=False)
+    
 ALLOWED_HOSTS = [
-    '*',
+    '.railway.app',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://*",
 ]
+
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
+    
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
 
 # Application definition
 
@@ -143,7 +149,20 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+
+# Send our static fiels here.
+# locked files that do not change during run time.
+# Is put in .gitignore.
+# External static file server.
+STATIC_ROOT = os.path.join(BASE_DIR, "static")  # When I make collectstatic, this change.
+
+# Retain a copy of static files here.
+# like custom css.
+# Unlocked files that change during development.
+STATICFILES_DIRS = [
+    BASE_DIR / 'staticfiles'
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -189,7 +208,7 @@ GRAPH_MODELS = {
 EMAIL_HOST_USER = None
 # Email Backend Configuration
 try:
-    EMAIL_HOST_USER = config('EMAIL-HOST-USER')
+    EMAIL_HOST_USER = config('EMAIL_HOST_USER')
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Replace with your preferred backend
 except:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -210,8 +229,10 @@ EMAIL_HOST = 'smtp.gmail.com'  # Replace with your email host for gmail -> 'smtp
 EMAIL_HOST_USER = config('EMAIL-HOST-USER', default='your_email_username')  # Replace with your email username
 EMAIL_HOST_PASSWORD = config('EMAIL-HOST-PASSWORD', default='your_email_password')  # Replace with your email password
 
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+SERVER_EMAIL = EMAIL_HOST_USER
 
-STRIPE_SECRET_KEY = 'sk_test_51RPPQuQd75JuuVLAP5q2202Ez5zZOzIUjGm6trOrT90aFOExRUjJGHryrbcudFXwkH164o3j8wovXXbIZ407WFTg00bJcAn8QC'
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
 
 try:
     GEMINI_API_KEY = config('GEMINI-API-KEY', default='AIzaSyC8g-EHGUFz7OA1YhX50DS8N3jbLM5L_Gw')
