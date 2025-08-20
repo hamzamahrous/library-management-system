@@ -13,6 +13,7 @@ export class BooksService {
   private httpClient = inject(HttpClient);
 
   getCategories(): Observable<Category[]> {
+    console.log(environment);
     return this.httpClient.get<Category[]>(`${environment.apiUrl}/category`);
   }
 

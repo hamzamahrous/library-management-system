@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: '/api',
+  apiUrl: 'https://library-management-system-production-776a.up.railway.app',
 };
