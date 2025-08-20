@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, map, Observable, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface WishList {
   wishlist_id: number;
@@ -19,7 +20,7 @@ export class WishListServiceService {
   }
 
   loadWishList() {
-    return this.http.get<WishList[]>('api/wishlist').pipe(
+    return this.http.get<WishList[]>(`${environment.apiUrl}/wishlist`).pipe(
       tap((items) => {
         this.wishList$.next(items);
       })
@@ -28,7 +29,11 @@ export class WishListServiceService {
 
   addToWishList(bookId: number, quantity: number = 1) {
     return this.http
-      .post<WishList>('api/wishlist/', { book: bookId, quantity, order: 1 })
+      .post<WishList>(`${environment.apiUrl}/wishlist/`, {
+        book: bookId,
+        quantity,
+        order: 1,
+      })
       .pipe(
         tap((addedItem) => {
           const currentWishList = this.wishList$.value;
@@ -38,15 +43,17 @@ export class WishListServiceService {
   }
 
   removeFromWishList(wishListItemId: number) {
-    return this.http.delete(`api/wishlist/${wishListItemId}/`).pipe(
-      tap(() => {
-        const updatedWishList = this.wishList$.value.filter(
-          (item) => item.wishlist_id !== wishListItemId
-        );
+    return this.http
+      .delete(`${environment.apiUrl}/wishlist/${wishListItemId}/`)
+      .pipe(
+        tap(() => {
+          const updatedWishList = this.wishList$.value.filter(
+            (item) => item.wishlist_id !== wishListItemId
+          );
 
-        this.wishList$.next(updatedWishList);
-      })
-    );
+          this.wishList$.next(updatedWishList);
+        })
+      );
   }
 
   isInWishList(bookId: number): Observable<boolean> {

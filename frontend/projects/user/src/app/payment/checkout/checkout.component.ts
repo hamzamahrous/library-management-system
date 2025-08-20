@@ -12,6 +12,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-checkout',
@@ -129,14 +130,17 @@ export class CheckoutComponent implements OnInit {
 
     this.httpClient
       .post<{ order_id: number; shipping_address: string }>(
-        'api/create-order-from-cart/',
+        `${environment.apiUrl}/create-order-from-cart/`,
         formData
       )
       .subscribe({
         next: (res) => {
           this.isLoading = true;
           this.httpClient
-            .post<{ sessionUrl: string }>(`api/pay/${res.order_id}/`, {})
+            .post<{ sessionUrl: string }>(
+              `${environment.apiUrl}/pay/${res.order_id}/`,
+              {}
+            )
             .subscribe({
               next: (res) => {
                 this.isLoading = false;

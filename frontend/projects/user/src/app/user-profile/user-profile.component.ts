@@ -8,6 +8,7 @@ import { HttpClient } from '@angular/common/http';
 import { BooksService } from '../books/services/books.service';
 import { Book } from '../books/book-type';
 import { BookComponent } from '../books/book/book.component';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-user-profile',
@@ -48,7 +49,7 @@ export class UserProfileComponent implements OnInit {
         if (status) {
           this.user = this.authService.getUserData();
 
-          this.http.get<Order[]>('api/orders').subscribe({
+          this.http.get<Order[]>(`${environment.apiUrl}/orders`).subscribe({
             next: (res) => {
               this.orders = res;
             },
@@ -58,7 +59,9 @@ export class UserProfileComponent implements OnInit {
     });
 
     this.http
-      .get<{ paragraph: string; suggested_books: number[] }>('api/ai-model/')
+      .get<{ paragraph: string; suggested_books: number[] }>(
+        `${environment.apiUrl}/ai-model/`
+      )
       .subscribe({
         next: (res) => {
           this.aiParagraph = res.paragraph;
@@ -89,7 +92,7 @@ export class UserProfileComponent implements OnInit {
 
   saveFirstName() {
     this.http
-      .patch(`api/userdetail/${this.user.id}/`, {
+      .patch(`${environment.apiUrl}/userdetail/${this.user.id}/`, {
         first_name: this.user.first_name,
       })
       .subscribe({
@@ -112,7 +115,7 @@ export class UserProfileComponent implements OnInit {
 
   saveLastName() {
     this.http
-      .patch(`api/userdetail/${this.user.id}/`, {
+      .patch(`${environment.apiUrl}/userdetail/${this.user.id}/`, {
         last_name: this.user.last_name,
       })
       .subscribe({
@@ -135,7 +138,7 @@ export class UserProfileComponent implements OnInit {
 
   saveUsername() {
     this.http
-      .patch(`api/userdetail/${this.user.id}/`, {
+      .patch(`${environment.apiUrl}/userdetail/${this.user.id}/`, {
         username: this.user.username,
       })
       .subscribe({
@@ -178,7 +181,7 @@ export class UserProfileComponent implements OnInit {
 
   saveEmail() {
     this.http
-      .patch(`api/userdetail/${this.user.id}/`, {
+      .patch(`${environment.apiUrl}/userdetail/${this.user.id}/`, {
         email: this.user.email,
       })
       .subscribe({

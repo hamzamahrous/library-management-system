@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, map, Observable, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface CartItem {
   transaction_id: number;
@@ -29,7 +30,7 @@ export class CartService {
   }
 
   loadCart() {
-    return this.http.get<CartItem[]>('api/transactions').pipe(
+    return this.http.get<CartItem[]>(`${environment.apiUrl}/transactions`).pipe(
       tap((items) => {
         this.cart$.next(items);
       })
@@ -38,7 +39,10 @@ export class CartService {
 
   addToCart(bookId: number, quantity: number = 1) {
     return this.http
-      .post<CartItem>('api/transactions/', { book: bookId, quantity })
+      .post<CartItem>(`${environment.apiUrl}/transactions/`, {
+        book: bookId,
+        quantity,
+      })
       .pipe(
         tap((addedItem) => {
           const currentCart = this.cart$.value;
@@ -56,7 +60,7 @@ export class CartService {
       const newQuantity = currentItem.quantity + 1;
 
       this.http
-        .patch<CartItem>(`api/transactions/${cartItemId}/`, {
+        .patch<CartItem>(`${environment.apiUrl}/transactions/${cartItemId}/`, {
           quantity: newQuantity,
         })
         .subscribe((updatedItem) => {
@@ -77,7 +81,7 @@ export class CartService {
       const newQuantity = currentItem.quantity - 1;
 
       this.http
-        .patch<CartItem>(`api/transactions/${cartItemId}/`, {
+        .patch<CartItem>(`${environment.apiUrl}/transactions/${cartItemId}/`, {
           quantity: newQuantity,
         })
         .subscribe((updatedItem) => {
@@ -90,19 +94,23 @@ export class CartService {
   }
 
   removeFromCart(cartItemId: number) {
-    return this.http.delete(`api/transactions/${cartItemId}/`).pipe(
-      tap(() => {
-        const updatedCart = this.cart$.value.filter(
-          (item) => item.transaction_id !== cartItemId
-        );
+    return this.http
+      .delete(`${environment.apiUrl}/transactions/${cartItemId}/`)
+      .pipe(
+        tap(() => {
+          const updatedCart = this.cart$.value.filter(
+            (item) => item.transaction_id !== cartItemId
+          );
 
-        this.cart$.next(updatedCart);
-      })
-    );
+          this.cart$.next(updatedCart);
+        })
+      );
   }
 
   clearCart() {
-    return this.http.delete(`api/clear`).pipe(tap(() => this.cart$.next([])));
+    return this.http
+      .delete(`${environment.apiUrl}/clear`)
+      .pipe(tap(() => this.cart$.next([])));
   }
 
   isInCart(bookId: number): Observable<boolean> {

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from '../user-profile/user-type';
-import { Order } from '../order/order-type';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -27,7 +27,7 @@ export class AuthService {
 
   login(credentials: { email: string; password: string }): Observable<any> {
     return new Observable((observer) => {
-      this.http.post('api/login/', credentials).subscribe({
+      this.http.post(`${environment.apiUrl}/login/`, credentials).subscribe({
         next: (res: any) => {
           localStorage.setItem('token', res.token);
           localStorage.setItem('user', JSON.stringify(res.user));
@@ -46,7 +46,7 @@ export class AuthService {
   }
 
   signup(credentials: { username: string; email: string; password: string }) {
-    return this.http.post('api/register/', credentials);
+    return this.http.post(`${environment.apiUrl}/register/`, credentials);
   }
 
   logout(): void {
