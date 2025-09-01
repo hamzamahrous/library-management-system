@@ -16,7 +16,6 @@ export class TrendingBooksComponent {
   trendingBooks: Book[] = [];
 
   ngOnInit(): void {
-    console.log(`${environment.apiUrl}`);
     this.loadBooks();
   }
 
