@@ -1,4 +1,9 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  provideZoneChangeDetection,
+  PLATFORM_ID,
+  inject,
+} from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -9,20 +14,25 @@ import {
   provideHttpClient,
   withInterceptors,
 } from '@angular/common/http';
+import { isPlatformBrowser } from '@angular/common';
 
 function loggingInterceptor(
   request: HttpRequest<unknown>,
   next: HttpHandlerFn
 ) {
-  const token = localStorage.getItem('token');
-  if (token) {
-    const cloned = request.clone({
-      setHeaders: {
-        Authorization: `token ${token}`,
-      },
-    });
+  const platformId = inject(PLATFORM_ID);
 
-    return next(cloned);
+  if (isPlatformBrowser(platformId)) {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const cloned = request.clone({
+        setHeaders: {
+          Authorization: `token ${token}`,
+        },
+      });
+
+      return next(cloned);
+    }
   }
 
   return next(request);
