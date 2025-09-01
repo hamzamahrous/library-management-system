@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { BookComponent } from '../../books/book/book.component';
 import { BooksService } from '../../books/services/books.service';
 import { Book } from '../../books/book-type';
+import { environment } from 'projects/user/src/environments/environment';
 
 @Component({
   selector: 'app-trending-books',
@@ -15,6 +16,7 @@ export class TrendingBooksComponent {
   trendingBooks: Book[] = [];
 
   ngOnInit(): void {
+    console.log(`${environment.apiUrl}`);
     this.loadBooks();
   }
 

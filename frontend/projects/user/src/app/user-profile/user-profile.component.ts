@@ -1,8 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { User } from './user-type';
 import { AuthService } from '../auth/auth.service';
 import { Order } from '../order/order-type';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { BooksService } from '../books/services/books.service';
@@ -42,9 +42,9 @@ export class UserProfileComponent implements OnInit {
   private authService = inject(AuthService);
   private booksService = inject(BooksService);
   private http = inject(HttpClient);
+  private platformId = inject(PLATFORM_ID);
 
   ngOnInit(): void {
-    console.log(`${environment.apiUrl}`);
     this.authService.isLoggedIn$.subscribe({
       next: (status) => {
         if (status) {
@@ -98,11 +98,13 @@ export class UserProfileComponent implements OnInit {
       })
       .subscribe({
         next: (res) => {
-          const oldData = localStorage.getItem('user');
-          if (oldData) {
-            const parsedData = JSON.parse(oldData);
-            parsedData.first_name = this.user.first_name;
-            localStorage.setItem('user', JSON.stringify(parsedData));
+          if (isPlatformBrowser(this.platformId)) {
+            const oldData = localStorage.getItem('user');
+            if (oldData) {
+              const parsedData = JSON.parse(oldData);
+              parsedData.first_name = this.user.first_name;
+              localStorage.setItem('user', JSON.stringify(parsedData));
+            }
           }
 
           this.editFirstName = false;
@@ -121,11 +123,13 @@ export class UserProfileComponent implements OnInit {
       })
       .subscribe({
         next: (res) => {
-          const oldData = localStorage.getItem('user');
-          if (oldData) {
-            const parsedData = JSON.parse(oldData);
-            parsedData.last_name = this.user.last_name;
-            localStorage.setItem('user', JSON.stringify(parsedData));
+          if (isPlatformBrowser(this.platformId)) {
+            const oldData = localStorage.getItem('user');
+            if (oldData) {
+              const parsedData = JSON.parse(oldData);
+              parsedData.last_name = this.user.last_name;
+              localStorage.setItem('user', JSON.stringify(parsedData));
+            }
           }
 
           this.editLastName = false;
@@ -145,11 +149,13 @@ export class UserProfileComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.usernameErrorMessage = '';
-          const oldData = localStorage.getItem('user');
-          if (oldData) {
-            const parsedData = JSON.parse(oldData);
-            parsedData.username = this.user.username;
-            localStorage.setItem('user', JSON.stringify(parsedData));
+          if (isPlatformBrowser(this.platformId)) {
+            const oldData = localStorage.getItem('user');
+            if (oldData) {
+              const parsedData = JSON.parse(oldData);
+              parsedData.username = this.user.username;
+              localStorage.setItem('user', JSON.stringify(parsedData));
+            }
           }
 
           this.editUsername = false;
@@ -188,11 +194,13 @@ export class UserProfileComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.emailErrorMessage = '';
-          const oldData = localStorage.getItem('user');
-          if (oldData) {
-            const parsedData = JSON.parse(oldData);
-            parsedData.email = this.user.email;
-            localStorage.setItem('user', JSON.stringify(parsedData));
+          if (isPlatformBrowser(this.platformId)) {
+            const oldData = localStorage.getItem('user');
+            if (oldData) {
+              const parsedData = JSON.parse(oldData);
+              parsedData.email = this.user.email;
+              localStorage.setItem('user', JSON.stringify(parsedData));
+            }
           }
 
           this.editEmail = false;
@@ -226,10 +234,12 @@ export class UserProfileComponent implements OnInit {
   cancelEditFirstName() {
     this.editFirstName = false;
 
-    const oldData = localStorage.getItem('user');
-    if (oldData) {
-      const parsedData = JSON.parse(oldData);
-      this.user.first_name = parsedData.first_name;
+    if (isPlatformBrowser(this.platformId)) {
+      const oldData = localStorage.getItem('user');
+      if (oldData) {
+        const parsedData = JSON.parse(oldData);
+        this.user.first_name = parsedData.first_name;
+      }
     }
   }
 

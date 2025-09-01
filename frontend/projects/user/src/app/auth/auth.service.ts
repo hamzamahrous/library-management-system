@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from '../user-profile/user-type';
 import { environment } from '../../environments/environment';
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +24,9 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) {}
 
   private hasToken(): boolean {
+    if (!isPlatformBrowser(this.platForm)) {
+      return false;
+    }
     return !!localStorage.getItem('token');
   }
 
@@ -30,8 +34,10 @@ export class AuthService {
     return new Observable((observer) => {
       this.http.post(`${environment.apiUrl}/login/`, credentials).subscribe({
         next: (res: any) => {
-          localStorage.setItem('token', res.token);
-          localStorage.setItem('user', JSON.stringify(res.user));
+          if (isPlatformBrowser(this.platForm)) {
+            localStorage.setItem('token', res.token);
+            localStorage.setItem('user', JSON.stringify(res.user));
+          }
           this.user = res.user;
 
           this.loggedIn.next(true);
@@ -51,8 +57,10 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    if (isPlatformBrowser(this.platForm)) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
     this.loggedIn.next(false);
     this.router.navigate(['/sign-in']);
   }
@@ -62,6 +70,9 @@ export class AuthService {
   }
 
   getToken(): string | null {
+    if (!isPlatformBrowser(this.platForm)) {
+      return null;
+    }
     return localStorage.getItem('token');
   }
 
@@ -70,6 +81,9 @@ export class AuthService {
   }
 
   private loadUserFromStorage(): User | null {
+    if (!isPlatformBrowser(this.platForm)) {
+      return null;
+    }
     const userData = localStorage.getItem('user');
     return userData ? JSON.parse(userData) : null;
   }
