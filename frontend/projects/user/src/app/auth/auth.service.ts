@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from '../user-profile/user-type';
@@ -9,6 +9,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root',
 })
 export class AuthService {
+  private platForm = inject(PLATFORM_ID);
   private loggedIn = new BehaviorSubject<boolean>(this.hasToken());
   user: User = this.loadUserFromStorage() || {
     id: 0,

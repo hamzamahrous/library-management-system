@@ -44,6 +44,7 @@ export class UserProfileComponent implements OnInit {
   private http = inject(HttpClient);
 
   ngOnInit(): void {
+    console.log(`${environment.apiUrl}`);
     this.authService.isLoggedIn$.subscribe({
       next: (status) => {
         if (status) {
